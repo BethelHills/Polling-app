@@ -1,22 +1,28 @@
-import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Poll } from '@/lib/types'
-import { Users, Calendar, ArrowRight } from 'lucide-react'
-import { SafePollDescription } from '@/components/SafeHtmlRenderer'
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Poll } from "@/lib/types";
+import { Users, Calendar, ArrowRight } from "lucide-react";
+import { SafePollDescription } from "@/components/SafeHtmlRenderer";
 
 interface PollCardProps {
-  poll: Poll
+  poll: Poll;
 }
 
 export function PollCard({ poll }: PollCardProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
 
   return (
     <Link href={`/polls/${poll.id}`} className="block">
@@ -27,15 +33,15 @@ export function PollCard({ poll }: PollCardProps) {
               <CardTitle className="line-clamp-2">{poll.title}</CardTitle>
               {poll.description && (
                 <CardDescription className="line-clamp-2">
-                  <SafePollDescription 
+                  <SafePollDescription
                     description={poll.description}
                     fallback={poll.description}
                   />
                 </CardDescription>
               )}
             </div>
-            <Badge variant={poll.is_active ? 'default' : 'secondary'}>
-              {poll.is_active ? 'Active' : 'Closed'}
+            <Badge variant={poll.is_active ? "default" : "secondary"}>
+              {poll.is_active ? "Active" : "Closed"}
             </Badge>
           </div>
         </CardHeader>
@@ -56,5 +62,5 @@ export function PollCard({ poll }: PollCardProps) {
         </CardContent>
       </Card>
     </Link>
-  )
+  );
 }

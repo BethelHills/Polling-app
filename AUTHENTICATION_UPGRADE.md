@@ -29,37 +29,47 @@ Your poll creation API has been upgraded with **full authentication support** an
 ## 🔧 **Technical Changes**
 
 ### **1. New Server Client (`lib/supabaseServerClient.ts`)**
+
 ```typescript
 // Server-side client with service role key
-export const supabaseServerClient = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+export const supabaseServerClient = createClient(
+  supabaseUrl,
+  supabaseServiceKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  },
+);
 ```
 
 ### **2. Updated API Route (`app/api/polls/route.ts`)**
+
 ```typescript
 // Authentication check
-const token = request.headers.get("authorization")?.replace("Bearer ", "")
-if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+const token = request.headers.get("authorization")?.replace("Bearer ", "");
+if (!token)
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-const { data: userData, error: userErr } = await supabaseServerClient.auth.getUser(token)
-if (userErr || !userData?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+const { data: userData, error: userErr } =
+  await supabaseServerClient.auth.getUser(token);
+if (userErr || !userData?.user)
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 // Create poll with user ownership
 const { data: poll, error: pollError } = await supabaseServerClient
-  .from('polls')
+  .from("polls")
   .insert({
     title,
     description: description || null,
     is_active: true,
-    owner_id: userData.user.id  // 👈 User ownership
-  })
+    owner_id: userData.user.id, // 👈 User ownership
+  });
 ```
 
 ### **3. Enhanced Database Schema**
+
 - **User Ownership**: `owner_id` field in polls table
 - **Vote Tracking**: Complete vote history with user IDs
 - **RLS Policies**: Secure access control
@@ -68,22 +78,24 @@ const { data: poll, error: pollError } = await supabaseServerClient
 ## 🎯 **API Usage**
 
 ### **Creating a Poll (Authenticated)**
+
 ```typescript
-const response = await fetch('/api/polls', {
-  method: 'POST',
+const response = await fetch("/api/polls", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${userToken}`  // 👈 Required!
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${userToken}`, // 👈 Required!
   },
   body: JSON.stringify({
-    title: 'What is your favorite framework?',
-    description: 'Choose your preferred web framework',
-    options: ['React', 'Vue', 'Angular', 'Svelte']
-  })
-})
+    title: "What is your favorite framework?",
+    description: "Choose your preferred web framework",
+    options: ["React", "Vue", "Angular", "Svelte"],
+  }),
+});
 ```
 
 ### **Response Format**
+
 ```json
 {
   "success": true,
@@ -102,18 +114,21 @@ const response = await fetch('/api/polls', {
 ## 🛡️ **Security Features**
 
 ### **1. Row Level Security (RLS)**
+
 - Users can only see active polls
 - Users can only edit their own polls
 - Users can only vote once per poll
 - Automatic vote count updates
 
 ### **2. Authentication Flow**
+
 1. **Token Extraction**: Bearer token from headers
 2. **User Verification**: Server-side token validation
 3. **Ownership Assignment**: Poll linked to authenticated user
 4. **Secure Operations**: All DB operations use authenticated context
 
 ### **3. Error Handling**
+
 - **401 Unauthorized**: Missing or invalid token
 - **400 Bad Request**: Validation errors
 - **500 Server Error**: Database or server issues
@@ -121,6 +136,7 @@ const response = await fetch('/api/polls', {
 ## 📊 **Database Schema Updates**
 
 ### **New Tables & Fields**
+
 ```sql
 -- Polls table with ownership
 CREATE TABLE polls (
@@ -147,6 +163,7 @@ CREATE TABLE votes (
 ## 🧪 **Testing the New API**
 
 ### **1. Test with Valid Token**
+
 ```bash
 curl -X POST http://localhost:3000/api/polls \
   -H "Content-Type: application/json" \
@@ -158,6 +175,7 @@ curl -X POST http://localhost:3000/api/polls \
 ```
 
 ### **2. Test without Token (Should Fail)**
+
 ```bash
 curl -X POST http://localhost:3000/api/polls \
   -H "Content-Type: application/json" \
@@ -179,6 +197,7 @@ curl -X POST http://localhost:3000/api/polls \
 ## 🔧 **Environment Variables**
 
 Make sure you have these in your `.env.local`:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key

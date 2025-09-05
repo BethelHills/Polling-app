@@ -1,9 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { CreatePollForm } from '@/components/CreatePollForm'
-import { Badge } from '@/components/ui/badge'
-import { Sparkles, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
-import Link from 'next/link'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CreatePollForm } from "@/components/CreatePollForm";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, CheckCircle, AlertTriangle, Zap } from "lucide-react";
+import Link from "next/link";
 
 export default function EnhancedDemoPage() {
   return (
@@ -20,11 +26,16 @@ export default function EnhancedDemoPage() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Enhanced Polling App
                 </h1>
-                <p className="text-sm text-muted-foreground">Advanced form validation & styling</p>
+                <p className="text-sm text-muted-foreground">
+                  Advanced form validation & styling
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Enhanced
               </Badge>
@@ -48,13 +59,16 @@ export default function EnhancedDemoPage() {
                   Enhanced Features
                 </CardTitle>
                 <CardDescription>
-                  Experience the improved polling form with advanced validation and styling
+                  Experience the improved polling form with advanced validation
+                  and styling
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-green-700">✨ New Features</h4>
+                    <h4 className="font-semibold text-green-700">
+                      ✨ New Features
+                    </h4>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500" />
@@ -75,7 +89,9 @@ export default function EnhancedDemoPage() {
                     </ul>
                   </div>
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-blue-700">🎨 Visual Improvements</h4>
+                    <h4 className="font-semibold text-blue-700">
+                      🎨 Visual Improvements
+                    </h4>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-blue-500" />
@@ -164,5 +180,5 @@ export default function EnhancedDemoPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

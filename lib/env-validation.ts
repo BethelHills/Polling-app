@@ -38,22 +38,32 @@ export function validateEnvironment(): ValidationResult {
   for (const [key, value] of Object.entries(requiredClientVars)) {
     if (!value) {
       errors.push(`Missing required environment variable: ${key}`);
-    } else if (value.includes('placeholder') || value.includes('your-')) {
+    } else if (value.includes("placeholder") || value.includes("your-")) {
       errors.push(`Environment variable ${key} contains placeholder value`);
-    } else if (key === 'NEXT_PUBLIC_SUPABASE_ANON_KEY' && !value.startsWith('eyJ')) {
+    } else if (
+      key === "NEXT_PUBLIC_SUPABASE_ANON_KEY" &&
+      !value.startsWith("eyJ")
+    ) {
       warnings.push(`Environment variable ${key} may not be a valid JWT token`);
     }
   }
 
   // Validate server-side variables (only on server)
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     for (const [key, value] of Object.entries(requiredServerVars)) {
       if (!value) {
         errors.push(`Missing required server environment variable: ${key}`);
-      } else if (value.includes('placeholder') || value.includes('your-')) {
-        errors.push(`Server environment variable ${key} contains placeholder value`);
-      } else if (key === 'SUPABASE_SERVICE_ROLE_KEY' && !value.startsWith('sk-')) {
-        warnings.push(`Environment variable ${key} may not be a valid service role key`);
+      } else if (value.includes("placeholder") || value.includes("your-")) {
+        errors.push(
+          `Server environment variable ${key} contains placeholder value`,
+        );
+      } else if (
+        key === "SUPABASE_SERVICE_ROLE_KEY" &&
+        !value.startsWith("sk-")
+      ) {
+        warnings.push(
+          `Environment variable ${key} may not be a valid service role key`,
+        );
       }
     }
   }
@@ -78,37 +88,47 @@ function checkForSecurityIssues(): { errors: string[]; warnings: string[] } {
   const warnings: string[] = [];
 
   // Check if service role key is exposed to client
-  if (typeof window !== 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    errors.push('🚨 SECURITY CRITICAL: Service role key exposed to client-side code!');
+  if (typeof window !== "undefined" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    errors.push(
+      "🚨 SECURITY CRITICAL: Service role key exposed to client-side code!",
+    );
   }
 
   // Check for NEXT_PUBLIC_ prefix on sensitive variables
-  const sensitiveVars = ['SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SECRET_KEY'];
+  const sensitiveVars = ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"];
   for (const varName of sensitiveVars) {
     if (process.env[`NEXT_PUBLIC_${varName}`]) {
-      errors.push(`🚨 SECURITY CRITICAL: Sensitive variable ${varName} has NEXT_PUBLIC_ prefix!`);
+      errors.push(
+        `🚨 SECURITY CRITICAL: Sensitive variable ${varName} has NEXT_PUBLIC_ prefix!`,
+      );
     }
   }
 
   // Check for hardcoded keys in environment variables
   const envString = JSON.stringify(process.env);
-  if (envString.includes('sk-') && typeof window !== 'undefined') {
-    errors.push('🚨 SECURITY CRITICAL: Service role key pattern found in client environment!');
+  if (envString.includes("sk-") && typeof window !== "undefined") {
+    errors.push(
+      "🚨 SECURITY CRITICAL: Service role key pattern found in client environment!",
+    );
   }
 
   // Check for development keys in production
-  if (process.env.NODE_ENV === 'production') {
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('localhost') || 
-        process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('127.0.0.1')) {
-      warnings.push('Production environment using localhost URL');
+  if (process.env.NODE_ENV === "production") {
+    if (
+      process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("localhost") ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("127.0.0.1")
+    ) {
+      warnings.push("Production environment using localhost URL");
     }
   }
 
   // Check for missing HTTPS in production
-  if (process.env.NODE_ENV === 'production' && 
-      process.env.NEXT_PUBLIC_SUPABASE_URL && 
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://')) {
-    warnings.push('Production environment should use HTTPS URLs');
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith("https://")
+  ) {
+    warnings.push("Production environment should use HTTPS URLs");
   }
 
   return { errors, warnings };
@@ -119,28 +139,29 @@ function checkForSecurityIssues(): { errors: string[]; warnings: string[] } {
  */
 export function getEnvironmentConfig(): EnvironmentConfig {
   const validation = validateEnvironment();
-  
+
   if (!validation.isValid) {
-    console.error('❌ Environment validation failed:');
-    validation.errors.forEach(error => console.error(`  ${error}`));
-    validation.warnings.forEach(warning => console.warn(`  ⚠️ ${warning}`));
-    
+    console.error("❌ Environment validation failed:");
+    validation.errors.forEach((error) => console.error(`  ${error}`));
+    validation.warnings.forEach((warning) => console.warn(`  ⚠️ ${warning}`));
+
     // In production, throw error to prevent startup
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Environment validation failed. Check configuration.');
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Environment validation failed. Check configuration.");
     }
   } else if (validation.warnings.length > 0) {
-    console.warn('⚠️ Environment validation warnings:');
-    validation.warnings.forEach(warning => console.warn(`  ${warning}`));
+    console.warn("⚠️ Environment validation warnings:");
+    validation.warnings.forEach((warning) => console.warn(`  ${warning}`));
   } else {
-    console.log('✅ Environment validation passed');
+    console.log("✅ Environment validation passed");
   }
 
   return {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    NODE_ENV: process.env.NODE_ENV || 'development',
+    NODE_ENV: process.env.NODE_ENV || "development",
   };
 }
 
@@ -157,13 +178,19 @@ export function isSecureEnvironment(): boolean {
  */
 export function getEnvironmentSummary(): Record<string, unknown> {
   const config = getEnvironmentConfig();
-  
+
   return {
     NODE_ENV: config.NODE_ENV,
-    NEXT_PUBLIC_SUPABASE_URL: config.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Missing',
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: config.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing',
-    SUPABASE_SERVICE_ROLE_KEY: config.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing',
-    isClient: typeof window !== 'undefined',
+    NEXT_PUBLIC_SUPABASE_URL: config.NEXT_PUBLIC_SUPABASE_URL
+      ? "✅ Set"
+      : "❌ Missing",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: config.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      ? "✅ Set"
+      : "❌ Missing",
+    SUPABASE_SERVICE_ROLE_KEY: config.SUPABASE_SERVICE_ROLE_KEY
+      ? "✅ Set"
+      : "❌ Missing",
+    isClient: typeof window !== "undefined",
     isSecure: isSecureEnvironment(),
   };
 }
@@ -172,26 +199,28 @@ export function getEnvironmentSummary(): Record<string, unknown> {
  * Runtime security check for client-side code
  */
 export function performClientSecurityCheck(): void {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return; // Server-side, skip check
   }
 
   // Check for service role key exposure
   if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('🚨 SECURITY BREACH: Service role key exposed to client!');
-    throw new Error('Service role key must not be exposed to client-side code');
+    console.error("🚨 SECURITY BREACH: Service role key exposed to client!");
+    throw new Error("Service role key must not be exposed to client-side code");
   }
 
   // Check for NEXT_PUBLIC_ prefix on sensitive variables
-  const sensitiveVars = ['SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SECRET_KEY'];
+  const sensitiveVars = ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"];
   for (const varName of sensitiveVars) {
     if (process.env[`NEXT_PUBLIC_${varName}`]) {
       console.error(`🚨 SECURITY BREACH: ${varName} has NEXT_PUBLIC_ prefix!`);
-      throw new Error(`Sensitive variable ${varName} must not have NEXT_PUBLIC_ prefix`);
+      throw new Error(
+        `Sensitive variable ${varName} must not have NEXT_PUBLIC_ prefix`,
+      );
     }
   }
 
-  console.log('✅ Client-side security check passed');
+  console.log("✅ Client-side security check passed");
 }
 
 /**
@@ -201,23 +230,25 @@ export function performClientSecurityCheck(): void {
 export function initializeEnvironmentValidation(): void {
   // Always validate environment
   const validation = validateEnvironment();
-  
+
   if (!validation.isValid) {
-    console.error('❌ Environment validation failed:');
-    validation.errors.forEach(error => console.error(`  ${error}`));
-    
+    console.error("❌ Environment validation failed:");
+    validation.errors.forEach((error) => console.error(`  ${error}`));
+
     // In production, prevent startup
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Environment validation failed. Application cannot start.');
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "Environment validation failed. Application cannot start.",
+      );
     }
   }
 
   // Perform client-side security check
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     performClientSecurityCheck();
   }
 
   // Log environment summary
   const summary = getEnvironmentSummary();
-  console.log('🔧 Environment Summary:', summary);
+  console.log("🔧 Environment Summary:", summary);
 }

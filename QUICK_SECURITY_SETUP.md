@@ -3,6 +3,7 @@
 ## 🎯 **5-Minute Setup**
 
 ### **Step 1: Environment Variables**
+
 ```bash
 # Copy the template
 cp .env.example .env.local
@@ -12,6 +13,7 @@ nano .env.local
 ```
 
 Add your keys:
+
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -20,6 +22,7 @@ NODE_ENV=development
 ```
 
 ### **Step 2: Verify Security**
+
 ```bash
 # Check environment setup
 npm run env:check
@@ -32,6 +35,7 @@ npm run dev
 ```
 
 ### **Step 3: Database Setup (Supabase Dashboard)**
+
 1. Go to your Supabase project
 2. Open SQL Editor
 3. Run these scripts in order:
@@ -48,6 +52,7 @@ npm run dev
 ```
 
 ### **Step 4: GitHub Secrets (for CI/CD)**
+
 1. Go to your GitHub repository
 2. **Settings** → **Secrets and variables** → **Actions**
 3. Add these secrets:
@@ -58,6 +63,7 @@ npm run dev
 ## ✅ **You're Done!**
 
 Your application now has **enterprise-grade security**:
+
 - 🔐 **No exposed secrets**
 - 🛡️ **Input validation**
 - 🔑 **Authentication**
@@ -85,6 +91,7 @@ npm run type-check
 ## 🚨 **If Something Goes Wrong**
 
 ### **Environment Issues**
+
 ```bash
 # Check what's missing
 npm run env:check
@@ -94,11 +101,13 @@ npm run security:check
 ```
 
 ### **Database Issues**
+
 - Check Supabase connection
 - Verify RLS policies are enabled
 - Run migration scripts again
 
 ### **Build Issues**
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -109,6 +118,7 @@ npm run build
 ## 📞 **Need Help?**
 
 Check these guides:
+
 - `ENVIRONMENT_SECURITY_GUIDE.md` - Detailed environment setup
 - `SECURITY_SETUP_SUMMARY.md` - Complete security overview
 - `SECURITY_IMPLEMENTATION_STATUS.md` - Current status

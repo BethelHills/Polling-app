@@ -1,11 +1,11 @@
-import { getAllPolls } from '@/lib/mock-actions'
-import { PollCard } from '@/components/PollCard'
-import { Button } from '@/components/ui/button'
-import { Plus, BarChart3, Sparkles } from 'lucide-react'
-import Link from 'next/link'
+import { getAllPolls } from "@/lib/mock-actions";
+import { PollCard } from "@/components/PollCard";
+import { Button } from "@/components/ui/button";
+import { Plus, BarChart3, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export default async function Home() {
-  const polls = await getAllPolls()
+  const polls = await getAllPolls();
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,7 +57,11 @@ export default async function Home() {
                 </Button>
               </Link>
               <Link href="/enhanced-demo">
-                <Button size="lg" variant="secondary" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
+                >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Enhanced Demo
                 </Button>
@@ -73,5 +77,5 @@ export default async function Home() {
         )}
       </main>
     </div>
-  )
+  );
 }

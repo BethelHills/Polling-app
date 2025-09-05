@@ -1,9 +1,15 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, ArrowLeft, Home } from 'lucide-react'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { BarChart3, ArrowLeft, Home } from "lucide-react";
 
 export default function PollNotFound() {
   return (
@@ -16,7 +22,8 @@ export default function PollNotFound() {
             </div>
             <CardTitle className="text-2xl">Poll Not Found</CardTitle>
             <CardDescription>
-              The poll you&apos;re looking for doesn&apos;t exist or has been removed.
+              The poll you&apos;re looking for doesn&apos;t exist or has been
+              removed.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -30,7 +37,7 @@ export default function PollNotFound() {
                 <li>• The poll is no longer active</li>
               </ul>
             </div>
-            
+
             <div className="flex gap-2">
               <Link href="/" className="flex-1">
                 <Button variant="outline" className="w-full">
@@ -38,8 +45,8 @@ export default function PollNotFound() {
                   Go Home
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => window.history.back()}
                 className="flex-1"
               >
@@ -51,5 +58,5 @@ export default function PollNotFound() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

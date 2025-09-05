@@ -1,30 +1,36 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { QrCode, Copy, Share2, Check } from 'lucide-react'
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { QrCode, Copy, Share2, Check } from "lucide-react";
 
 interface QRCodeShareProps {
-  pollId: string
-  pollTitle: string
+  pollId: string;
+  pollTitle: string;
 }
 
 export function QRCodeShare({ pollId, pollTitle }: QRCodeShareProps) {
-  const [copied, setCopied] = useState(false)
-  
-  const pollUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/polls/${pollId}`
-  
+  const [copied, setCopied] = useState(false);
+
+  const pollUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/polls/${pollId}`;
+
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(pollUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(pollUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error)
+      console.error("Failed to copy:", error);
     }
-  }
+  };
 
   const sharePoll = async () => {
     if (navigator.share) {
@@ -32,15 +38,15 @@ export function QRCodeShare({ pollId, pollTitle }: QRCodeShareProps) {
         await navigator.share({
           title: pollTitle,
           text: `Vote on this poll: ${pollTitle}`,
-          url: pollUrl
-        })
+          url: pollUrl,
+        });
       } catch (error) {
-        console.error('Error sharing:', error)
+        console.error("Error sharing:", error);
       }
     } else {
-      copyToClipboard()
+      copyToClipboard();
     }
-  }
+  };
 
   return (
     <Card className="sticky top-8">
@@ -105,5 +111,5 @@ export function QRCodeShare({ pollId, pollTitle }: QRCodeShareProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -4,14 +4,14 @@
 
 ```typescript
 // ❌ NEVER DO THIS - EXPOSES SERVICE ROLE KEY TO CLIENT!
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE! // ❌ WRONG!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE!; // ❌ WRONG!
 
 export const supabase = createClient(supabaseUrl, supabaseServiceRole, {
-  auth: { persistSession: false }
-})
+  auth: { persistSession: false },
+});
 ```
 
 ## ✅ **CORRECT SECURE PATTERNS**
@@ -20,36 +20,41 @@ export const supabase = createClient(supabaseUrl, supabaseServiceRole, {
 
 ```typescript
 // ✅ CORRECT - Uses anonymous key (safe for client)
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // ✅ CORRECT!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; // ✅ CORRECT!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: { persistSession: true } // ✅ Allow session persistence for client
-})
+  auth: { persistSession: true }, // ✅ Allow session persistence for client
+});
 ```
 
 ### **2. For Server-Side Operations (API Routes, Server Components)**
 
 ```typescript
 // ✅ CORRECT - Uses service role key (server-only)
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY! // ✅ CORRECT!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // ✅ CORRECT!
 
-export const supabaseServerClient = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { 
-    persistSession: false,
-    autoRefreshToken: false 
-  }
-})
+export const supabaseServerClient = createClient(
+  supabaseUrl,
+  supabaseServiceKey,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  },
+);
 ```
 
 ## 🔧 **IMMEDIATE FIXES NEEDED**
 
 ### **1. Fix Environment Variable Name**
+
 ```bash
 # ❌ Wrong
 SUPABASE_SERVICE_ROLE=sk-...
@@ -64,37 +69,39 @@ Instead of creating new clients, use the existing secure ones:
 
 ```typescript
 // For client-side operations
-import { supabase } from '@/lib/supabase'
+import { supabase } from "@/lib/supabase";
 
-// For server-side operations  
-import { supabaseServerClient } from '@/lib/supabaseServerClient'
+// For server-side operations
+import { supabaseServerClient } from "@/lib/supabaseServerClient";
 ```
 
 ### **3. Check Your Usage Context**
 
 #### **If this is for a React Component:**
+
 ```typescript
 // ✅ Use client-side client
-import { supabase } from '@/lib/supabase'
+import { supabase } from "@/lib/supabase";
 
 export default function MyComponent() {
   const handleVote = async () => {
     const { data, error } = await supabase
-      .from('votes')
-      .insert({ poll_id, option_id })
-  }
+      .from("votes")
+      .insert({ poll_id, option_id });
+  };
 }
 ```
 
 #### **If this is for an API Route:**
+
 ```typescript
 // ✅ Use server-side client
-import { supabaseServerClient } from '@/lib/supabaseServerClient'
+import { supabaseServerClient } from "@/lib/supabaseServerClient";
 
 export async function POST(request: NextRequest) {
   const { data, error } = await supabaseServerClient
-    .from('polls')
-    .insert(pollData)
+    .from("polls")
+    .insert(pollData);
 }
 ```
 

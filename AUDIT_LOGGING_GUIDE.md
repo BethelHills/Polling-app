@@ -9,6 +9,7 @@ Audit logging is a critical security feature that tracks all important user acti
 ### **1. 🗄️ Database Schema**
 
 #### **`audit_logs` Table Structure:**
+
 ```sql
 CREATE TABLE audit_logs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -25,6 +26,7 @@ CREATE TABLE audit_logs (
 ```
 
 #### **Key Features:**
+
 - **Comprehensive Indexing**: Optimized for common query patterns
 - **Row Level Security**: Proper access controls
 - **Immutable Logs**: No updates or deletes allowed
@@ -33,71 +35,76 @@ CREATE TABLE audit_logs (
 ### **2. 🛡️ Audit Logger Utility**
 
 #### **Core Components:**
+
 - **`lib/audit-logger.ts`**: Comprehensive audit logging utility
 - **Singleton Pattern**: Ensures consistent logging across the application
 - **Type Safety**: Strongly typed audit actions and target types
 - **Error Resilience**: Logging failures don't break main functionality
 
 #### **Audit Action Types:**
+
 ```typescript
 export enum AuditAction {
   // Poll actions
-  CREATE_POLL = 'create_poll',
-  UPDATE_POLL = 'update_poll',
-  DELETE_POLL = 'delete_poll',
-  VIEW_POLL = 'view_poll',
-  
+  CREATE_POLL = "create_poll",
+  UPDATE_POLL = "update_poll",
+  DELETE_POLL = "delete_poll",
+  VIEW_POLL = "view_poll",
+
   // Vote actions
-  VOTE = 'vote',
-  CHANGE_VOTE = 'change_vote',
-  DELETE_VOTE = 'delete_vote',
-  
+  VOTE = "vote",
+  CHANGE_VOTE = "change_vote",
+  DELETE_VOTE = "delete_vote",
+
   // User actions
-  LOGIN = 'login',
-  LOGOUT = 'logout',
-  REGISTER = 'register',
-  UPDATE_PROFILE = 'update_profile',
-  DELETE_ACCOUNT = 'delete_account',
-  
+  LOGIN = "login",
+  LOGOUT = "logout",
+  REGISTER = "register",
+  UPDATE_PROFILE = "update_profile",
+  DELETE_ACCOUNT = "delete_account",
+
   // System actions
-  RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded',
-  SUSPICIOUS_ACTIVITY = 'suspicious_activity',
-  SECURITY_VIOLATION = 'security_violation',
-  CLEANUP_AUDIT_LOGS = 'cleanup_audit_logs',
-  
+  RATE_LIMIT_EXCEEDED = "rate_limit_exceeded",
+  SUSPICIOUS_ACTIVITY = "suspicious_activity",
+  SECURITY_VIOLATION = "security_violation",
+  CLEANUP_AUDIT_LOGS = "cleanup_audit_logs",
+
   // Admin actions
-  ADMIN_ACTION = 'admin_action',
-  BAN_USER = 'ban_user',
-  UNBAN_USER = 'unban_user',
-  MODERATE_POLL = 'moderate_poll'
+  ADMIN_ACTION = "admin_action",
+  BAN_USER = "ban_user",
+  UNBAN_USER = "unban_user",
+  MODERATE_POLL = "moderate_poll",
 }
 ```
 
 ### **3. 🚀 Integration Points**
 
 #### **✅ Poll Creation API**
+
 ```typescript
 // Log poll creation for audit trail
 try {
-  await auditLog.pollCreated(request, userData.user.id, poll.id, title)
+  await auditLog.pollCreated(request, userData.user.id, poll.id, title);
 } catch (auditError) {
-  console.error('Failed to log poll creation audit event:', auditError)
+  console.error("Failed to log poll creation audit event:", auditError);
   // Don't fail the request if audit logging fails
 }
 ```
 
 #### **✅ Vote API**
+
 ```typescript
 // Log vote for audit trail
 try {
-  await auditLog.vote(request, userId, pollId, option.text, false)
+  await auditLog.vote(request, userId, pollId, option.text, false);
 } catch (auditError) {
-  console.error('Failed to log vote audit event:', auditError)
+  console.error("Failed to log vote audit event:", auditError);
   // Don't fail the request if audit logging fails
 }
 ```
 
 #### **✅ Rate Limiting**
+
 ```typescript
 // Log rate limit exceeded event
 try {
@@ -105,10 +112,10 @@ try {
     req,
     undefined, // userId will be extracted from request if available
     req.nextUrl.pathname,
-    config.max
+    config.max,
   );
 } catch (error) {
-  console.error('Failed to log rate limit exceeded event:', error);
+  console.error("Failed to log rate limit exceeded event:", error);
 }
 ```
 
@@ -117,7 +124,7 @@ try {
 ### **✅ 1. Basic Audit Logging**
 
 ```typescript
-import { auditLog } from '@/lib/audit-logger';
+import { auditLog } from "@/lib/audit-logger";
 
 // Log poll creation
 await auditLog.pollCreated(request, userId, pollId, pollTitle);
@@ -132,7 +139,7 @@ await auditLog.rateLimitExceeded(request, userId, endpoint, limit);
 ### **✅ 2. Custom Audit Logging**
 
 ```typescript
-import { auditLogger, AuditAction, AuditTargetType } from '@/lib/audit-logger';
+import { auditLogger, AuditAction, AuditTargetType } from "@/lib/audit-logger";
 
 // Log custom action
 await auditLogger.log({
@@ -141,10 +148,10 @@ await auditLogger.log({
   target_type: AuditTargetType.USER,
   target_id: targetUserId,
   metadata: {
-    admin_action: 'ban_user',
-    reason: 'spam_behavior',
-    duration: '7_days'
-  }
+    admin_action: "ban_user",
+    reason: "spam_behavior",
+    duration: "7_days",
+  },
 });
 ```
 
@@ -158,8 +165,8 @@ await auditLogger.logWithRequest(request, {
   target_type: AuditTargetType.POLL,
   target_id: pollId,
   metadata: {
-    changes: { title: 'Old Title', description: 'New Description' }
-  }
+    changes: { title: "Old Title", description: "New Description" },
+  },
 });
 ```
 
@@ -170,16 +177,16 @@ await auditLogger.logWithRequest(request, {
 await auditLog.suspiciousActivity(
   request,
   userId,
-  'Multiple failed login attempts',
-  { attempts: 5, time_window: '5_minutes' }
+  "Multiple failed login attempts",
+  { attempts: 5, time_window: "5_minutes" },
 );
 
 // Log security violation
 await auditLog.securityViolation(
   request,
   userId,
-  'Unauthorized access attempt',
-  { resource: 'admin_panel', method: 'GET' }
+  "Unauthorized access attempt",
+  { resource: "admin_panel", method: "GET" },
 );
 ```
 
@@ -195,10 +202,10 @@ CREATE POLICY "insert_audit_logs" ON audit_logs
 -- Only system admins can read audit logs
 CREATE POLICY "select_audit_logs_admin" ON audit_logs
     FOR SELECT USING (
-        auth.role() = 'authenticated' AND 
+        auth.role() = 'authenticated' AND
         EXISTS (
-            SELECT 1 FROM auth.users 
-            WHERE auth.users.id = auth.uid() 
+            SELECT 1 FROM auth.users
+            WHERE auth.users.id = auth.uid()
             AND auth.users.raw_user_meta_data->>'role' = 'admin'
         )
     );
@@ -277,7 +284,7 @@ WHERE target_type = 'poll'
 ORDER BY created_at DESC;
 
 -- Get voting patterns
-SELECT 
+SELECT
   DATE(created_at) as date,
   COUNT(*) as vote_count
 FROM audit_logs
@@ -297,7 +304,7 @@ WHERE ip_address = '192.168.1.100'
 ORDER BY created_at DESC;
 
 -- Find multiple users from same IP
-SELECT 
+SELECT
   ip_address,
   COUNT(DISTINCT user_id) as unique_users,
   COUNT(*) as total_actions
@@ -317,9 +324,9 @@ ORDER BY total_actions DESC;
 CREATE OR REPLACE FUNCTION cleanup_old_audit_logs()
 RETURNS void AS $$
 BEGIN
-    DELETE FROM audit_logs 
+    DELETE FROM audit_logs
     WHERE created_at < NOW() - INTERVAL '1 year';
-    
+
     -- Log the cleanup action
     INSERT INTO audit_logs (action, target_type, metadata, created_at)
     VALUES (
@@ -349,7 +356,7 @@ SELECT cron.schedule('cleanup-audit-logs', '0 2 * * 0', 'SELECT cleanup_old_audi
 SELECT cleanup_old_audit_logs();
 
 -- Check audit log table size
-SELECT 
+SELECT
   pg_size_pretty(pg_total_relation_size('audit_logs')) as table_size,
   COUNT(*) as total_logs,
   MIN(created_at) as oldest_log,
@@ -363,7 +370,7 @@ FROM audit_logs;
 
 ```sql
 -- Investigate suspicious user activity
-SELECT 
+SELECT
   action,
   target_type,
   target_id,
@@ -377,7 +384,7 @@ WHERE user_id = 'suspicious-user-uuid'
 ORDER BY created_at DESC;
 
 -- Find all actions from suspicious IP
-SELECT 
+SELECT
   user_id,
   action,
   target_type,
@@ -393,7 +400,7 @@ ORDER BY created_at DESC;
 
 ```sql
 -- Track all access to specific poll
-SELECT 
+SELECT
   user_id,
   action,
   ip_address,
@@ -405,7 +412,7 @@ WHERE target_type = 'poll'
 ORDER BY created_at DESC;
 
 -- Find unauthorized access attempts
-SELECT 
+SELECT
   user_id,
   action,
   ip_address,
@@ -421,7 +428,7 @@ ORDER BY created_at DESC;
 
 ```sql
 -- Analyze user voting patterns
-SELECT 
+SELECT
   user_id,
   COUNT(*) as total_votes,
   COUNT(DISTINCT target_id) as unique_polls,
@@ -434,7 +441,7 @@ GROUP BY user_id
 ORDER BY total_votes DESC;
 
 -- Find users with unusual activity patterns
-SELECT 
+SELECT
   user_id,
   COUNT(*) as total_actions,
   COUNT(DISTINCT action) as unique_actions,
@@ -452,7 +459,7 @@ ORDER BY total_actions DESC;
 
 ```sql
 -- Daily activity summary
-SELECT 
+SELECT
   DATE(created_at) as date,
   action,
   COUNT(*) as count
@@ -462,7 +469,7 @@ GROUP BY DATE(created_at), action
 ORDER BY date DESC, count DESC;
 
 -- Top users by activity
-SELECT 
+SELECT
   user_id,
   COUNT(*) as total_actions,
   COUNT(CASE WHEN action = 'create_poll' THEN 1 END) as polls_created,
@@ -478,7 +485,7 @@ LIMIT 20;
 
 ```sql
 -- Rate limit violations by endpoint
-SELECT 
+SELECT
   metadata->>'endpoint' as endpoint,
   COUNT(*) as violations,
   COUNT(DISTINCT user_id) as unique_users,
@@ -490,7 +497,7 @@ GROUP BY metadata->>'endpoint'
 ORDER BY violations DESC;
 
 -- Security events summary
-SELECT 
+SELECT
   action,
   COUNT(*) as count,
   COUNT(DISTINCT user_id) as unique_users,

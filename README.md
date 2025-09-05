@@ -26,7 +26,7 @@ A modern polling application built with Next.js, TypeScript, Tailwind CSS, and S
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - A Supabase account
 
 ### 1. Clone and Install
@@ -88,18 +88,21 @@ polling-app/
 ## Key Features Explained
 
 ### Poll Detail View
+
 - **Voting Interface**: Clean, accessible voting form with radio button selection
 - **Real-time Results**: Live vote counts with percentage calculations and progress bars
 - **Vote Confirmation**: Success messages and vote status tracking
 - **Responsive Layout**: Works on all screen sizes
 
 ### QR Code Sharing
+
 - **QR Code Generation**: Generate QR codes for easy mobile sharing
 - **Copy to Clipboard**: One-click URL copying
 - **Native Sharing**: Use device's native share functionality when available
 - **Sticky Sidebar**: QR code stays visible while scrolling
 
 ### Server Actions
+
 - **Form Handling**: Server Actions for form submissions (no API routes needed)
 - **Data Validation**: Server-side validation and error handling
 - **Real-time Updates**: Automatic page revalidation after votes
@@ -126,7 +129,7 @@ The app uses three main tables:
 Make sure to set these in your deployment platform:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` 
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SECRET_KEY`
 
 ## Contributing

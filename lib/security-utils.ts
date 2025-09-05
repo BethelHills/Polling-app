@@ -4,16 +4,16 @@
  * Enhanced with DOMPurify for comprehensive HTML sanitization
  */
 
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 // Create DOMPurify instance for server-side rendering
 const createDOMPurify = () => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     // Server-side: return a mock DOMPurify that just returns the input
     // This is safe because we're only using it for sanitization
     return {
       sanitize: (html: string, config?: Record<string, unknown>) => html,
-      version: 'server-side'
+      version: "server-side",
     };
   }
   // Client-side: use the global DOMPurify
@@ -27,33 +27,37 @@ const createDOMPurify = () => {
  * @returns Sanitized text safe for display
  */
 export function sanitizeText(text: string, allowHtml: boolean = false): string {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   // Configure DOMPurify based on whether HTML is allowed
-  const config = allowHtml ? {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: []
-  } : {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: []
-  };
-  
+  const config = allowHtml
+    ? {
+        ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br", "ul", "ol", "li"],
+        ALLOWED_ATTR: [],
+      }
+    : {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+      };
+
   // Use DOMPurify for comprehensive sanitization
   const domPurify = createDOMPurify();
   const sanitized = String(domPurify.sanitize(text, config));
-  
+
   // Additional custom sanitization for extra safety
-  return sanitized
-    // Remove any remaining javascript: protocols
-    .replace(/javascript:/gi, '')
-    // Remove any remaining data: protocols (except safe image types)
-    .replace(/data:(?!image\/(png|jpg|jpeg|gif|webp|svg))/gi, '')
-    // Remove any remaining vbscript: protocols
-    .replace(/vbscript:/gi, '')
-    // Remove any remaining on* event handlers
-    .replace(/\bon\w+\s*=/gi, '')
-    // Trim whitespace
-    .trim();
+  return (
+    sanitized
+      // Remove any remaining javascript: protocols
+      .replace(/javascript:/gi, "")
+      // Remove any remaining data: protocols (except safe image types)
+      .replace(/data:(?!image\/(png|jpg|jpeg|gif|webp|svg))/gi, "")
+      // Remove any remaining vbscript: protocols
+      .replace(/vbscript:/gi, "")
+      // Remove any remaining on* event handlers
+      .replace(/\bon\w+\s*=/gi, "")
+      // Trim whitespace
+      .trim()
+  );
 }
 
 /**
@@ -62,18 +66,34 @@ export function sanitizeText(text: string, allowHtml: boolean = false): string {
  * @returns Sanitized HTML safe for display
  */
 export function sanitizeHtml(html: string): string {
-  if (!html) return '';
-  
+  if (!html) return "";
+
   // Configure DOMPurify to allow safe HTML tags
   const config = {
     ALLOWED_TAGS: [
-      'b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre'
+      "b",
+      "i",
+      "em",
+      "strong",
+      "p",
+      "br",
+      "ul",
+      "ol",
+      "li",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "blockquote",
+      "code",
+      "pre",
     ],
-    ALLOWED_ATTR: ['class', 'id'],
-    ALLOW_DATA_ATTR: false
+    ALLOWED_ATTR: ["class", "id"],
+    ALLOW_DATA_ATTR: false,
   };
-  
+
   const domPurify = createDOMPurify();
   return String(domPurify.sanitize(html, config));
 }
@@ -93,17 +113,17 @@ export function validatePollTitle(title: string): {
 
   // Check length
   if (sanitizedTitle.length < 3) {
-    errors.push('Title must be at least 3 characters long');
+    errors.push("Title must be at least 3 characters long");
   }
-  
+
   if (sanitizedTitle.length > 200) {
-    errors.push('Title must be less than 200 characters');
+    errors.push("Title must be less than 200 characters");
     sanitizedTitle = sanitizedTitle.substring(0, 200);
   }
 
   // Check for empty after sanitization
   if (!sanitizedTitle.trim()) {
-    errors.push('Title cannot be empty after sanitization');
+    errors.push("Title cannot be empty after sanitization");
   }
 
   // Check for suspicious patterns
@@ -112,12 +132,12 @@ export function validatePollTitle(title: string): {
     /javascript:/i,
     /on\w+\s*=/i,
     /data:text\/html/i,
-    /vbscript:/i
+    /vbscript:/i,
   ];
 
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(title)) {
-      errors.push('Title contains potentially dangerous content');
+      errors.push("Title contains potentially dangerous content");
       break;
     }
   }
@@ -125,7 +145,7 @@ export function validatePollTitle(title: string): {
   return {
     isValid: errors.length === 0,
     sanitizedTitle,
-    errors
+    errors,
   };
 }
 
@@ -144,7 +164,7 @@ export function validatePollDescription(description: string): {
 
   // Check length
   if (sanitizedDescription.length > 500) {
-    errors.push('Description must be less than 500 characters');
+    errors.push("Description must be less than 500 characters");
     sanitizedDescription = sanitizedDescription.substring(0, 500);
   }
 
@@ -154,12 +174,12 @@ export function validatePollDescription(description: string): {
     /javascript:/i,
     /on\w+\s*=/i,
     /data:text\/html/i,
-    /vbscript:/i
+    /vbscript:/i,
   ];
 
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(description)) {
-      errors.push('Description contains potentially dangerous content');
+      errors.push("Description contains potentially dangerous content");
       break;
     }
   }
@@ -167,7 +187,7 @@ export function validatePollDescription(description: string): {
   return {
     isValid: errors.length === 0,
     sanitizedDescription,
-    errors
+    errors,
   };
 }
 
@@ -186,17 +206,17 @@ export function validatePollOption(optionText: string): {
 
   // Check length
   if (sanitizedOption.length < 1) {
-    errors.push('Option text is required');
+    errors.push("Option text is required");
   }
-  
+
   if (sanitizedOption.length > 100) {
-    errors.push('Option must be less than 100 characters');
+    errors.push("Option must be less than 100 characters");
     sanitizedOption = sanitizedOption.substring(0, 100);
   }
 
   // Check for empty after sanitization
   if (!sanitizedOption.trim()) {
-    errors.push('Option cannot be empty after sanitization');
+    errors.push("Option cannot be empty after sanitization");
   }
 
   // Check for suspicious patterns
@@ -205,12 +225,12 @@ export function validatePollOption(optionText: string): {
     /javascript:/i,
     /on\w+\s*=/i,
     /data:text\/html/i,
-    /vbscript:/i
+    /vbscript:/i,
   ];
 
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(optionText)) {
-      errors.push('Option contains potentially dangerous content');
+      errors.push("Option contains potentially dangerous content");
       break;
     }
   }
@@ -218,7 +238,7 @@ export function validatePollOption(optionText: string): {
   return {
     isValid: errors.length === 0,
     sanitizedOption,
-    errors
+    errors,
   };
 }
 
@@ -229,16 +249,20 @@ export function validatePollOption(optionText: string): {
  * @param suffix - Suffix to add when truncating (default: '...')
  * @returns Truncated text
  */
-export function safeTruncate(text: string, maxLength: number, suffix: string = '...'): string {
+export function safeTruncate(
+  text: string,
+  maxLength: number,
+  suffix: string = "...",
+): string {
   if (!text || text.length <= maxLength) {
-    return text || '';
+    return text || "";
   }
-  
+
   const sanitized = sanitizeText(text);
   if (sanitized.length <= maxLength) {
     return sanitized;
   }
-  
+
   return sanitized.substring(0, maxLength - suffix.length) + suffix;
 }
 
@@ -248,15 +272,15 @@ export function safeTruncate(text: string, maxLength: number, suffix: string = '
  * @returns HTML-escaped text
  */
 export function escapeHtml(text: string): string {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;");
 }
 
 /**
@@ -265,38 +289,41 @@ export function escapeHtml(text: string): string {
  * @param type - Type of input (title, description, option)
  * @returns Validation result with sanitized input
  */
-export function validateUserInput(input: string, type: 'title' | 'description' | 'option'): {
+export function validateUserInput(
+  input: string,
+  type: "title" | "description" | "option",
+): {
   isValid: boolean;
   sanitizedInput: string;
   errors: string[];
 } {
   switch (type) {
-    case 'title':
+    case "title":
       const titleResult = validatePollTitle(input);
       return {
         isValid: titleResult.isValid,
         sanitizedInput: titleResult.sanitizedTitle,
-        errors: titleResult.errors
+        errors: titleResult.errors,
       };
-    case 'description':
+    case "description":
       const descResult = validatePollDescription(input);
       return {
         isValid: descResult.isValid,
         sanitizedInput: descResult.sanitizedDescription,
-        errors: descResult.errors
+        errors: descResult.errors,
       };
-    case 'option':
+    case "option":
       const optionResult = validatePollOption(input);
       return {
         isValid: optionResult.isValid,
         sanitizedInput: optionResult.sanitizedOption,
-        errors: optionResult.errors
+        errors: optionResult.errors,
       };
     default:
       return {
         isValid: false,
-        sanitizedInput: '',
-        errors: ['Invalid input type']
+        sanitizedInput: "",
+        errors: ["Invalid input type"],
       };
   }
 }
@@ -315,8 +342,8 @@ export function getContentSecurityPolicy(): string {
     "connect-src 'self' https://*.supabase.co",
     "frame-ancestors 'none'",
     "base-uri 'self'",
-    "form-action 'self'"
-  ].join('; ');
+    "form-action 'self'",
+  ].join("; ");
 }
 
 /**
@@ -325,12 +352,12 @@ export function getContentSecurityPolicy(): string {
  */
 export function getSecurityHeaders(): Record<string, string> {
   return {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Content-Security-Policy': getContentSecurityPolicy()
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": getContentSecurityPolicy(),
   };
 }
 
@@ -343,39 +370,73 @@ export const DOMPurifyConfigs = {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
     ALLOW_DATA_ATTR: false,
-    ALLOW_UNKNOWN_PROTOCOLS: false
+    ALLOW_UNKNOWN_PROTOCOLS: false,
   },
-  
+
   // Basic HTML configuration - allows safe formatting
   BASIC_HTML: {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
+    ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br"],
     ALLOWED_ATTR: [],
     ALLOW_DATA_ATTR: false,
-    ALLOW_UNKNOWN_PROTOCOLS: false
+    ALLOW_UNKNOWN_PROTOCOLS: false,
   },
-  
+
   // Rich text configuration - allows more formatting options
   RICH_TEXT: {
     ALLOWED_TAGS: [
-      'b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre'
+      "b",
+      "i",
+      "em",
+      "strong",
+      "p",
+      "br",
+      "ul",
+      "ol",
+      "li",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "blockquote",
+      "code",
+      "pre",
     ],
-    ALLOWED_ATTR: ['class', 'id'],
+    ALLOWED_ATTR: ["class", "id"],
     ALLOW_DATA_ATTR: false,
-    ALLOW_UNKNOWN_PROTOCOLS: false
+    ALLOW_UNKNOWN_PROTOCOLS: false,
   },
-  
+
   // Link configuration - allows safe links
   WITH_LINKS: {
     ALLOWED_TAGS: [
-      'b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li', 
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre', 'a'
+      "b",
+      "i",
+      "em",
+      "strong",
+      "p",
+      "br",
+      "ul",
+      "ol",
+      "li",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "blockquote",
+      "code",
+      "pre",
+      "a",
     ],
-    ALLOWED_ATTR: ['class', 'id', 'href', 'title', 'target'],
+    ALLOWED_ATTR: ["class", "id", "href", "title", "target"],
     ALLOW_DATA_ATTR: false,
     ALLOW_UNKNOWN_PROTOCOLS: false,
-    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
-  }
+    ALLOWED_URI_REGEXP:
+      /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+  },
 };
 
 /**
@@ -384,8 +445,11 @@ export const DOMPurifyConfigs = {
  * @param config - DOMPurify configuration to use
  * @returns Sanitized text
  */
-export function sanitizeWithConfig(text: string, config: Record<string, unknown> = DOMPurifyConfigs.STRICT): string {
-  if (!text) return '';
+export function sanitizeWithConfig(
+  text: string,
+  config: Record<string, unknown> = DOMPurifyConfigs.STRICT,
+): string {
+  if (!text) return "";
   const domPurify = createDOMPurify();
   return String(domPurify.sanitize(text, config));
 }
@@ -397,7 +461,7 @@ export function sanitizeWithConfig(text: string, config: Record<string, unknown>
  */
 export function containsDangerousContent(text: string): boolean {
   if (!text) return false;
-  
+
   const dangerousPatterns = [
     /<script/i,
     /javascript:/i,
@@ -408,10 +472,10 @@ export function containsDangerousContent(text: string): boolean {
     /<object/i,
     /<embed/i,
     /<link/i,
-    /<meta/i
+    /<meta/i,
   ];
-  
-  return dangerousPatterns.some(pattern => pattern.test(text));
+
+  return dangerousPatterns.some((pattern) => pattern.test(text));
 }
 
 /**
@@ -422,13 +486,13 @@ export function getDOMPurifyInfo(): { version: string; isSupported: boolean } {
   try {
     const domPurify = createDOMPurify();
     return {
-      version: domPurify.version || 'unknown',
-      isSupported: typeof domPurify !== 'undefined'
+      version: domPurify.version || "unknown",
+      isSupported: typeof domPurify !== "undefined",
     };
   } catch (error) {
     return {
-      version: 'unknown',
-      isSupported: false
+      version: "unknown",
+      isSupported: false,
     };
   }
 }

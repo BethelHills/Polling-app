@@ -1,151 +1,160 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { createPoll } from '@/lib/mock-actions'
-import { EnhancedFormField } from '@/components/ui/enhanced-form-field'
-import { OptionInput } from '@/components/ui/option-input'
-import { AlertMessage } from '@/components/ui/alert-message'
-import { 
-  validatePollForm, 
-  validateField, 
-  // getCharacterCount, 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { createPoll } from "@/lib/mock-actions";
+import { EnhancedFormField } from "@/components/ui/enhanced-form-field";
+import { OptionInput } from "@/components/ui/option-input";
+import { AlertMessage } from "@/components/ui/alert-message";
+import {
+  validatePollForm,
+  validateField,
+  // getCharacterCount,
   getInitialFormState,
-  type FormState 
-} from '@/lib/form-validation'
-import { Plus, Sparkles } from 'lucide-react'
+  type FormState,
+} from "@/lib/form-validation";
+import { Plus, Sparkles } from "lucide-react";
 
 export function CreatePollForm() {
-  const router = useRouter()
-  const [formState, setFormState] = useState<FormState>(getInitialFormState())
-  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; text: string } | null>(null)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const router = useRouter();
+  const [formState, setFormState] = useState<FormState>(getInitialFormState());
+  const [message, setMessage] = useState<{
+    type: "success" | "error" | "warning" | "info";
+    text: string;
+  } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Real-time validation effect
   useEffect(() => {
     const validation = validatePollForm({
       title: formState.title,
       description: formState.description,
-      options: formState.options
-    })
-    
-    setFormState(prev => ({ ...prev, isValid: validation.isValid }))
-    
+      options: formState.options,
+    });
+
+    setFormState((prev) => ({ ...prev, isValid: validation.isValid }));
+
     // Clear field errors when form becomes valid
     if (validation.isValid) {
-      setFieldErrors({})
+      setFieldErrors({});
     }
-  }, [formState.title, formState.description, formState.options])
+  }, [formState.title, formState.description, formState.options]);
 
   const addOption = () => {
     if (formState.options.length < 10) {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
-        options: [...prev.options, '']
-      }))
+        options: [...prev.options, ""],
+      }));
     }
-  }
+  };
 
   const removeOption = (index: number) => {
     if (formState.options.length > 2) {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
-        options: prev.options.filter((_, i) => i !== index)
-      }))
+        options: prev.options.filter((_, i) => i !== index),
+      }));
     }
-  }
+  };
 
   const updateOption = (index: number, value: string) => {
-    setFormState(prev => {
-      const newOptions = [...prev.options]
-      newOptions[index] = value
-      return { ...prev, options: newOptions }
-    })
+    setFormState((prev) => {
+      const newOptions = [...prev.options];
+      newOptions[index] = value;
+      return { ...prev, options: newOptions };
+    });
 
     // Real-time validation for this option
-    const error = validateField('option', value, formState.options)
-    setFieldErrors(prev => ({
+    const error = validateField("option", value, formState.options);
+    setFieldErrors((prev) => ({
       ...prev,
-      [`option-${index}`]: error || ''
-    }))
-  }
+      [`option-${index}`]: error || "",
+    }));
+  };
 
   const updateTitle = (value: string) => {
-    setFormState(prev => ({ ...prev, title: value }))
-    
-    const error = validateField('title', value)
-    setFieldErrors(prev => ({
+    setFormState((prev) => ({ ...prev, title: value }));
+
+    const error = validateField("title", value);
+    setFieldErrors((prev) => ({
       ...prev,
-      title: error || ''
-    }))
-  }
+      title: error || "",
+    }));
+  };
 
   const updateDescription = (value: string) => {
-    setFormState(prev => ({ ...prev, description: value }))
-    
-    const error = validateField('description', value)
-    setFieldErrors(prev => ({
+    setFormState((prev) => ({ ...prev, description: value }));
+
+    const error = validateField("description", value);
+    setFieldErrors((prev) => ({
       ...prev,
-      description: error || ''
-    }))
-  }
+      description: error || "",
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     // Final validation before submission
     const validation = validatePollForm({
       title: formState.title,
       description: formState.description,
-      options: formState.options
-    })
+      options: formState.options,
+    });
 
     if (!validation.isValid) {
-      const errors: Record<string, string> = {}
-      validation.errors.forEach(error => {
-        errors[error.field] = error.message
-      })
-      setFieldErrors(errors)
-      setMessage({ 
-        type: 'error', 
-        text: 'Please fix the errors below before submitting' 
-      })
-      return
+      const errors: Record<string, string> = {};
+      validation.errors.forEach((error) => {
+        errors[error.field] = error.message;
+      });
+      setFieldErrors(errors);
+      setMessage({
+        type: "error",
+        text: "Please fix the errors below before submitting",
+      });
+      return;
     }
 
-    setFormState(prev => ({ ...prev, isSubmitting: true }))
-    setMessage(null)
+    setFormState((prev) => ({ ...prev, isSubmitting: true }));
+    setMessage(null);
 
     try {
       // Create FormData for the server action
-      const formData = new FormData()
-      formData.append('title', formState.title.trim())
-      formData.append('description', formState.description.trim())
-      formState.options.forEach(option => {
+      const formData = new FormData();
+      formData.append("title", formState.title.trim());
+      formData.append("description", formState.description.trim());
+      formState.options.forEach((option) => {
         if (option.trim()) {
-          formData.append('options', option.trim())
+          formData.append("options", option.trim());
         }
-      })
+      });
 
-      const result = await createPoll(formData)
-      
+      const result = await createPoll(formData);
+
       if (result.success && result.pollId) {
-        setMessage({ type: 'success', text: result.message })
+        setMessage({ type: "success", text: result.message });
         // Redirect to the created poll after a short delay
         setTimeout(() => {
-          router.push(`/polls/${result.pollId}`)
-        }, 1500)
+          router.push(`/polls/${result.pollId}`);
+        }, 1500);
       } else {
-        setMessage({ type: 'error', text: result.message })
+        setMessage({ type: "error", text: result.message });
       }
     } catch {
-      setMessage({ type: 'error', text: 'An unexpected error occurred' })
+      setMessage({ type: "error", text: "An unexpected error occurred" });
     } finally {
-      setFormState(prev => ({ ...prev, isSubmitting: false }))
+      setFormState((prev) => ({ ...prev, isSubmitting: false }));
     }
-  }
+  };
 
   // Character counts for future use
   // const titleCharCount = getCharacterCount(formState.title, 200)
@@ -187,7 +196,9 @@ export function CreatePollForm() {
             type="textarea"
             placeholder="Add more context about your poll..."
             error={fieldErrors.description}
-            success={!fieldErrors.description && formState.description.length > 0}
+            success={
+              !fieldErrors.description && formState.description.length > 0
+            }
             maxLength={500}
             showCharacterCount={true}
             fieldName="description"
@@ -199,7 +210,9 @@ export function CreatePollForm() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium">Poll Options</h3>
-                <p className="text-xs text-muted-foreground">Minimum 2, maximum 10 options</p>
+                <p className="text-xs text-muted-foreground">
+                  Minimum 2, maximum 10 options
+                </p>
               </div>
               <Button
                 type="button"
@@ -213,17 +226,23 @@ export function CreatePollForm() {
                 Add Option
               </Button>
             </div>
-            
+
             <div className="space-y-3">
               {formState.options.map((option, index) => (
                 <OptionInput
                   key={index}
                   value={option}
                   onChange={(value) => updateOption(index, value)}
-                  onRemove={formState.options.length > 2 ? () => removeOption(index) : undefined}
+                  onRemove={
+                    formState.options.length > 2
+                      ? () => removeOption(index)
+                      : undefined
+                  }
                   placeholder={`Option ${index + 1}`}
                   error={fieldErrors[`option-${index}`]}
-                  success={!fieldErrors[`option-${index}`] && option.trim().length > 0}
+                  success={
+                    !fieldErrors[`option-${index}`] && option.trim().length > 0
+                  }
                   canRemove={formState.options.length > 2}
                   index={index}
                   allOptions={formState.options}
@@ -232,7 +251,7 @@ export function CreatePollForm() {
                 />
               ))}
             </div>
-            
+
             {formState.options.length < 2 && (
               <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
                 ⚠️ At least 2 options are required to create a poll
@@ -247,7 +266,7 @@ export function CreatePollForm() {
               message={message.text}
               onDismiss={() => setMessage(null)}
               showAnimation={true}
-              autoClose={message.type === 'success'}
+              autoClose={message.type === "success"}
               autoCloseDelay={3000}
             />
           )}
@@ -271,7 +290,7 @@ export function CreatePollForm() {
                 </div>
               )}
             </Button>
-            
+
             {!formState.isValid && formState.title && (
               <p className="text-xs text-muted-foreground text-center mt-2">
                 Complete all required fields to create your poll
@@ -281,5 +300,5 @@ export function CreatePollForm() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

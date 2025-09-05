@@ -9,10 +9,12 @@ This guide covers proper environment variable management for the polling applica
 ### **1. 🛡️ Client vs Server Key Separation**
 
 #### **Client-Side Keys (Safe to Expose)**
+
 - **`NEXT_PUBLIC_SUPABASE_URL`**: Public Supabase project URL
 - **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: Anonymous key with limited permissions
 
 #### **Server-Side Keys (Never Expose)**
+
 - **`SUPABASE_SERVICE_ROLE_KEY`**: Service role key with full database access
 - **`SUPABASE_SECRET_KEY`**: Legacy name for service role key (deprecated)
 
@@ -57,20 +59,22 @@ polling-app/
 ### **Supabase Client Configuration**
 
 #### **Client-Side (`lib/supabase.ts`)**
+
 ```typescript
 // Safe for browser exposure
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 ```
 
 #### **Server-Side (`lib/supabaseServerClient.ts`)**
+
 ```typescript
 // Server-only, never exposed to client
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-export const supabaseServerClient = createClient(url, supabaseServiceKey)
+export const supabaseServerClient = createClient(url, supabaseServiceKey);
 ```
 
 ## 🔧 **Setup Instructions**
@@ -78,6 +82,7 @@ export const supabaseServerClient = createClient(url, supabaseServiceKey)
 ### **1. Local Development Setup**
 
 #### **Step 1: Create Environment File**
+
 ```bash
 # Copy the example file
 cp .env.example .env.local
@@ -87,6 +92,7 @@ nano .env.local
 ```
 
 #### **Step 2: Add Your Keys**
+
 ```bash
 # .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -96,6 +102,7 @@ NODE_ENV=development
 ```
 
 #### **Step 3: Verify .gitignore**
+
 ```bash
 # .gitignore should include:
 .env.local
@@ -105,10 +112,12 @@ NODE_ENV=development
 ### **2. GitHub Secrets Setup**
 
 #### **Step 1: Go to Repository Settings**
+
 1. Navigate to your GitHub repository
 2. Click **Settings** → **Secrets and variables** → **Actions**
 
 #### **Step 2: Add Required Secrets**
+
 ```bash
 # Required secrets for CI/CD
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -122,6 +131,7 @@ VERCEL_PROJECT_ID=your-project-id
 ```
 
 #### **Step 3: Environment-Specific Secrets**
+
 ```bash
 # For different environments, use prefixes:
 # Development
@@ -144,6 +154,7 @@ PROD_SUPABASE_SERVICE_ROLE_KEY=sk-...
 The CI/CD pipeline is configured to use secrets appropriately:
 
 #### **Client-Side Jobs (No Service Role Key)**
+
 ```yaml
 test:
   runs-on: ubuntu-latest
@@ -157,6 +168,7 @@ test:
 ```
 
 #### **Server-Side Jobs (Service Role Key Required)**
+
 ```yaml
 database-migration:
   runs-on: ubuntu-latest
@@ -184,7 +196,7 @@ security-audit:
           echo "❌ Service role key found in code!"
           exit 1
         fi
-        
+
         if grep -r "sk-" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
           echo "❌ Potential Supabase secret key found in code!"
           exit 1
@@ -197,49 +209,49 @@ security-audit:
 
 ```typescript
 // ✅ Correct - uses anonymous key
-import { supabase } from '@/lib/supabase'
+import { supabase } from "@/lib/supabase";
 
 // User authentication
 const { data, error } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'password'
-})
+  email: "user@example.com",
+  password: "password",
+});
 
 // Public data access (with RLS)
 const { data: polls } = await supabase
-  .from('polls')
-  .select('*')
-  .eq('is_active', true)
+  .from("polls")
+  .select("*")
+  .eq("is_active", true);
 ```
 
 ### **2. Server-Side Operations**
 
 ```typescript
 // ✅ Correct - uses service role key
-import { supabaseServerClient } from '@/lib/supabaseServerClient'
+import { supabaseServerClient } from "@/lib/supabaseServerClient";
 
 // Admin operations
 const { data, error } = await supabaseServerClient
-  .from('polls')
-  .insert({ title: 'New Poll', owner_id: userId })
+  .from("polls")
+  .insert({ title: "New Poll", owner_id: userId });
 
 // JWT token validation
-const { data: userData } = await supabaseServerClient.auth.getUser(token)
+const { data: userData } = await supabaseServerClient.auth.getUser(token);
 ```
 
 ### **3. API Route Example**
 
 ```typescript
 // app/api/polls/route.ts
-import { supabaseServerClient } from '@/lib/supabaseServerClient'
+import { supabaseServerClient } from "@/lib/supabaseServerClient";
 
 export async function POST(request: NextRequest) {
   // ✅ Server-side only - service role key available
   const { data, error } = await supabaseServerClient
-    .from('polls')
-    .insert(pollData)
-  
-  return NextResponse.json({ data, error })
+    .from("polls")
+    .insert(pollData);
+
+  return NextResponse.json({ data, error });
 }
 ```
 
@@ -253,24 +265,26 @@ export function validateEnvironment() {
   const required = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  }
+  };
 
   const requiredServer = {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  }
+  };
 
   // Validate client-side variables
   for (const [key, value] of Object.entries(required)) {
-    if (!value || value.includes('placeholder')) {
-      throw new Error(`Missing or invalid environment variable: ${key}`)
+    if (!value || value.includes("placeholder")) {
+      throw new Error(`Missing or invalid environment variable: ${key}`);
     }
   }
 
   // Validate server-side variables (only on server)
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     for (const [key, value] of Object.entries(requiredServer)) {
-      if (!value || value.includes('placeholder')) {
-        throw new Error(`Missing or invalid server environment variable: ${key}`)
+      if (!value || value.includes("placeholder")) {
+        throw new Error(
+          `Missing or invalid server environment variable: ${key}`,
+        );
       }
     }
   }
@@ -283,9 +297,9 @@ export function validateEnvironment() {
 // lib/security-checks.ts
 export function checkForExposedSecrets() {
   // Check if service role key is accidentally exposed to client
-  if (typeof window !== 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('🚨 SECURITY WARNING: Service role key exposed to client!')
-    throw new Error('Service role key must not be exposed to client-side code')
+  if (typeof window !== "undefined" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error("🚨 SECURITY WARNING: Service role key exposed to client!");
+    throw new Error("Service role key must not be exposed to client-side code");
   }
 }
 ```
@@ -306,6 +320,7 @@ export function checkForExposedSecrets() {
 ### **If Service Role Key is Exposed:**
 
 1. **Immediate Actions:**
+
    ```bash
    # 1. Revoke the exposed key in Supabase dashboard
    # 2. Generate a new service role key
@@ -314,19 +329,21 @@ export function checkForExposedSecrets() {
    ```
 
 2. **Investigation:**
+
    ```bash
    # Check git history for exposed keys
    git log --all --full-history -- .env*
-   
+
    # Check for keys in code
    grep -r "sk-" --exclude-dir=node_modules .
    ```
 
 3. **Prevention:**
+
    ```bash
    # Add pre-commit hooks
    npm install --save-dev husky lint-staged
-   
+
    # Add to package.json
    "husky": {
      "hooks": {
@@ -338,6 +355,7 @@ export function checkForExposedSecrets() {
 ## 📋 **Checklist**
 
 ### **Development Setup**
+
 - [ ] `.env.local` created with proper keys
 - [ ] `.env.local` added to `.gitignore`
 - [ ] Using anonymous key for client-side operations
@@ -345,12 +363,14 @@ export function checkForExposedSecrets() {
 - [ ] No secrets committed to repository
 
 ### **CI/CD Setup**
+
 - [ ] GitHub Secrets configured
 - [ ] CI pipeline uses secrets appropriately
 - [ ] Security checks in place
 - [ ] Different keys for different environments
 
 ### **Production Deployment**
+
 - [ ] Production secrets configured
 - [ ] Service role key not exposed to client
 - [ ] Environment variables validated
@@ -359,6 +379,7 @@ export function checkForExposedSecrets() {
 ## 🎯 **Summary**
 
 ### **✅ Do:**
+
 - Use `NEXT_PUBLIC_SUPABASE_ANON_KEY` for client-side operations
 - Use `SUPABASE_SERVICE_ROLE_KEY` only for server-side operations
 - Store secrets in GitHub Secrets for CI/CD
@@ -367,6 +388,7 @@ export function checkForExposedSecrets() {
 - Validate environment variables at runtime
 
 ### **❌ Don't:**
+
 - Never commit service role keys to repository
 - Never expose service role keys to client-side code
 - Never use `NEXT_PUBLIC_` prefix for sensitive keys

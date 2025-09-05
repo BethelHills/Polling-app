@@ -1,9 +1,11 @@
 # Security Audit Report — ALX Polly (Polling App)
 
 ## Summary
+
 This repo contained multiple security weaknesses. This document lists discovered vulnerabilities, their impact, and the fixes applied.
 
 ### Discovered issues
+
 1. **Secrets in repo**
    - Impact: Exposed Supabase keys.
    - Fix: Removed `.env.local` from repo, added to `.gitignore`, rotate keys.
@@ -37,6 +39,7 @@ This repo contained multiple security weaknesses. This document lists discovered
    - Fix: Return generic errors to client, log details server-side.
 
 ### How to apply fixes locally
+
 1. Remove secrets and rotate keys.
 2. Add `.env.local` to `.gitignore`.
 3. Add server-only Supabase client (`lib/supabaseServerClient.ts`) and require Authorization header in API routes.
@@ -45,6 +48,7 @@ This repo contained multiple security weaknesses. This document lists discovered
 6. Use DOMPurify if rendering HTML.
 
 ### Next steps
+
 - Configure GitHub Actions to run tests and security linters.
 - Add rate-limiting middleware and reCAPTCHA for public forms.
 - Add logging & alerts for suspicious activity.

@@ -1,11 +1,6 @@
 {
-  "*.{js,jsx,ts,tsx}": [
-    "eslint --fix",
-    "prettier --write"
-  ],
-  "*.{json,md,yml,yaml}": [
-    "prettier --write"
-  ],
+  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+  "*.{json,md,yml,yaml}": ["prettier --write"],
   "*.{js,jsx,ts,tsx,json,md}": [
     "bash -c 'if grep -l \"SUPABASE_SERVICE_ROLE_KEY\\|sk-\" \"$@\" 2>/dev/null; then echo \"❌ Error: Secret keys found in files!\"; exit 1; fi' _"
   ]

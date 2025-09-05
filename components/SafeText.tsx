@@ -4,15 +4,20 @@
  * Enhanced with DOMPurify for comprehensive HTML sanitization
  */
 
-import { sanitizeText, sanitizeHtml, safeTruncate, DOMPurifyConfigs } from '@/lib/security-utils';
-import { cn } from '@/lib/utils';
+import {
+  sanitizeText,
+  sanitizeHtml,
+  safeTruncate,
+  DOMPurifyConfigs,
+} from "@/lib/security-utils";
+import { cn } from "@/lib/utils";
 
 interface SafeTextProps {
   children: string;
   className?: string;
   maxLength?: number;
   truncateSuffix?: string;
-  as?: 'span' | 'div' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  as?: "span" | "div" | "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   allowHtml?: boolean;
 }
 
@@ -20,29 +25,25 @@ interface SafeTextProps {
  * SafeText component that sanitizes text before rendering
  * Uses React's automatic escaping plus DOMPurify sanitization
  */
-export function SafeText({ 
-  children, 
-  className, 
-  maxLength, 
-  truncateSuffix = '...',
-  as: Component = 'span',
-  allowHtml = false
+export function SafeText({
+  children,
+  className,
+  maxLength,
+  truncateSuffix = "...",
+  as: Component = "span",
+  allowHtml = false,
 }: SafeTextProps) {
   if (!children) return null;
 
   // Sanitize the text using DOMPurify
   const sanitizedText = sanitizeText(children, allowHtml);
-  
+
   // Truncate if maxLength is specified
-  const finalText = maxLength 
+  const finalText = maxLength
     ? safeTruncate(sanitizedText, maxLength, truncateSuffix)
     : sanitizedText;
 
-  return (
-    <Component className={className}>
-      {finalText}
-    </Component>
-  );
+  return <Component className={className}>{finalText}</Component>;
 }
 
 /**
@@ -55,26 +56,22 @@ interface SafeTitleProps {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-export function SafeTitle({ 
-  title, 
-  className, 
+export function SafeTitle({
+  title,
+  className,
   maxLength = 200,
-  level = 2 
+  level = 2,
 }: SafeTitleProps) {
   if (!title) return null;
 
   const sanitizedTitle = sanitizeText(title);
-  const finalTitle = maxLength 
+  const finalTitle = maxLength
     ? safeTruncate(sanitizedTitle, maxLength)
     : sanitizedTitle;
 
   const HeadingTag = `h${level}` as keyof React.JSX.IntrinsicElements;
 
-  return (
-    <HeadingTag className={className}>
-      {finalTitle}
-    </HeadingTag>
-  );
+  return <HeadingTag className={className}>{finalTitle}</HeadingTag>;
 }
 
 /**
@@ -86,23 +83,19 @@ interface SafeDescriptionProps {
   maxLength?: number;
 }
 
-export function SafeDescription({ 
-  description, 
-  className, 
-  maxLength = 500 
+export function SafeDescription({
+  description,
+  className,
+  maxLength = 500,
 }: SafeDescriptionProps) {
   if (!description) return null;
 
   const sanitizedDescription = sanitizeText(description);
-  const finalDescription = maxLength 
+  const finalDescription = maxLength
     ? safeTruncate(sanitizedDescription, maxLength)
     : sanitizedDescription;
 
-  return (
-    <p className={className}>
-      {finalDescription}
-    </p>
-  );
+  return <p className={className}>{finalDescription}</p>;
 }
 
 /**
@@ -114,23 +107,19 @@ interface SafeOptionProps {
   maxLength?: number;
 }
 
-export function SafeOption({ 
-  optionText, 
-  className, 
-  maxLength = 100 
+export function SafeOption({
+  optionText,
+  className,
+  maxLength = 100,
 }: SafeOptionProps) {
   if (!optionText) return null;
 
   const sanitizedOption = sanitizeText(optionText);
-  const finalOption = maxLength 
+  const finalOption = maxLength
     ? safeTruncate(sanitizedOption, maxLength)
     : sanitizedOption;
 
-  return (
-    <span className={className}>
-      {finalOption}
-    </span>
-  );
+  return <span className={className}>{finalOption}</span>;
 }
 
 /**
@@ -144,37 +133,30 @@ interface SafeTruncatedTextProps {
   truncateSuffix?: string;
 }
 
-export function SafeTruncatedText({ 
-  text, 
-  maxLength, 
+export function SafeTruncatedText({
+  text,
+  maxLength,
   className,
   showTooltip = true,
-  truncateSuffix = '...'
+  truncateSuffix = "...",
 }: SafeTruncatedTextProps) {
   if (!text) return null;
 
   const sanitizedText = sanitizeText(text);
   const isTruncated = sanitizedText.length > maxLength;
-  const displayText = isTruncated 
+  const displayText = isTruncated
     ? safeTruncate(sanitizedText, maxLength, truncateSuffix)
     : sanitizedText;
 
   if (isTruncated && showTooltip) {
     return (
-      <span 
-        className={cn("cursor-help", className)}
-        title={sanitizedText}
-      >
+      <span className={cn("cursor-help", className)} title={sanitizedText}>
         {displayText}
       </span>
     );
   }
 
-  return (
-    <span className={className}>
-      {displayText}
-    </span>
-  );
+  return <span className={className}>{displayText}</span>;
 }
 
 /**
@@ -185,27 +167,27 @@ interface SafeHtmlProps {
   html: string;
   className?: string;
   maxLength?: number;
-  config?: 'strict' | 'basic' | 'rich' | 'with-links';
+  config?: "strict" | "basic" | "rich" | "with-links";
 }
 
-export function SafeHtml({ 
-  html, 
-  className, 
+export function SafeHtml({
+  html,
+  className,
   maxLength,
-  config = 'basic'
+  config = "basic",
 }: SafeHtmlProps) {
   if (!html) return null;
 
   // Select DOMPurify configuration based on config prop
   const domPurifyConfig = (() => {
     switch (config) {
-      case 'strict':
+      case "strict":
         return DOMPurifyConfigs.STRICT;
-      case 'basic':
+      case "basic":
         return DOMPurifyConfigs.BASIC_HTML;
-      case 'rich':
+      case "rich":
         return DOMPurifyConfigs.RICH_TEXT;
-      case 'with-links':
+      case "with-links":
         return DOMPurifyConfigs.WITH_LINKS;
       default:
         return DOMPurifyConfigs.BASIC_HTML;
@@ -214,14 +196,14 @@ export function SafeHtml({
 
   // Sanitize HTML content
   const sanitizedHtml = sanitizeHtml(html);
-  
+
   // Truncate if maxLength is specified
-  const finalHtml = maxLength 
+  const finalHtml = maxLength
     ? safeTruncate(sanitizedHtml, maxLength)
     : sanitizedHtml;
 
   return (
-    <div 
+    <div
       className={className}
       dangerouslySetInnerHTML={{ __html: finalHtml }}
     />
@@ -238,36 +220,36 @@ interface SafeMarkdownProps {
   maxLength?: number;
 }
 
-export function SafeMarkdown({ 
-  content, 
-  className, 
-  maxLength 
+export function SafeMarkdown({
+  content,
+  className,
+  maxLength,
 }: SafeMarkdownProps) {
   if (!content) return null;
 
   // Basic markdown to HTML conversion (safe subset)
   const html = content
     // Bold text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     // Italic text
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
     // Line breaks
-    .replace(/\n/g, '<br>')
+    .replace(/\n/g, "<br>")
     // Headers (basic)
-    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    .replace(/^### (.*$)/gm, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gm, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gm, "<h1>$1</h1>");
 
   // Sanitize the converted HTML
   const sanitizedHtml = sanitizeHtml(html);
-  
+
   // Truncate if maxLength is specified
-  const finalHtml = maxLength 
+  const finalHtml = maxLength
     ? safeTruncate(sanitizedHtml, maxLength)
     : sanitizedHtml;
 
   return (
-    <div 
+    <div
       className={className}
       dangerouslySetInnerHTML={{ __html: finalHtml }}
     />

@@ -1,7 +1,13 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, BarChart3, Vote, CheckCircle, Share2 } from 'lucide-react'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ArrowLeft, BarChart3, Vote, CheckCircle, Share2 } from "lucide-react";
 
 export default function DemoPage() {
   return (
@@ -153,19 +159,27 @@ export default function DemoPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    1
+                  </div>
                   Select an option from the poll
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    2
+                  </div>
                   Click &quot;Submit Vote&quot; button
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    3
+                  </div>
                   See &quot;Thank You&quot; confirmation
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                  <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    4
+                  </div>
                   View updated results
                 </div>
               </CardContent>
@@ -180,19 +194,27 @@ export default function DemoPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    1
+                  </div>
                   QR code generation (placeholder)
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    2
+                  </div>
                   Copy poll URL to clipboard
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    3
+                  </div>
                   Native device sharing
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                  <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold">
+                    4
+                  </div>
                   Direct link access
                 </div>
               </CardContent>
@@ -201,5 +223,5 @@ export default function DemoPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

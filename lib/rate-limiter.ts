@@ -3,8 +3,8 @@
  * Provides different rate limiting strategies for various endpoints
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { auditLog } from '@/lib/audit-logger';
+import { NextRequest, NextResponse } from "next/server";
+import { auditLog } from "@/lib/audit-logger";
 
 // In-memory store for rate limiting (in production, use Redis or similar)
 interface RateLimitStore {
@@ -17,14 +17,17 @@ interface RateLimitStore {
 const store: RateLimitStore = {};
 
 // Clean up expired entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  Object.keys(store).forEach(key => {
-    if (store[key].resetTime < now) {
-      delete store[key];
-    }
-  });
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    const now = Date.now();
+    Object.keys(store).forEach((key) => {
+      if (store[key].resetTime < now) {
+        delete store[key];
+      }
+    });
+  },
+  5 * 60 * 1000,
+);
 
 /**
  * Rate limiting configuration interface
@@ -47,43 +50,43 @@ export const RateLimitConfigs = {
   GENERAL: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // 100 requests per 15 minutes
-    message: 'Too many requests from this IP, please try again later.'
+    message: "Too many requests from this IP, please try again later.",
   },
 
   // Poll creation rate limiting
   CREATE_POLL: {
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 10, // 10 polls per hour
-    message: 'Too many poll creation attempts, please try again later.'
+    message: "Too many poll creation attempts, please try again later.",
   },
 
   // Voting rate limiting
   VOTE: {
     windowMs: 60 * 1000, // 1 minute
     max: 5, // 5 votes per minute
-    message: 'Too many voting attempts, please slow down.'
+    message: "Too many voting attempts, please slow down.",
   },
 
   // Search rate limiting
   SEARCH: {
     windowMs: 60 * 1000, // 1 minute
     max: 30, // 30 searches per minute
-    message: 'Too many search requests, please try again later.'
+    message: "Too many search requests, please try again later.",
   },
 
   // Authentication rate limiting
   AUTH: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // 5 auth attempts per 15 minutes
-    message: 'Too many authentication attempts, please try again later.'
+    message: "Too many authentication attempts, please try again later.",
   },
 
   // Analytics rate limiting
   ANALYTICS: {
     windowMs: 60 * 1000, // 1 minute
     max: 20, // 20 analytics requests per minute
-    message: 'Too many analytics requests, please try again later.'
-  }
+    message: "Too many analytics requests, please try again later.",
+  },
 };
 
 /**
@@ -95,11 +98,11 @@ function generateKey(req: NextRequest, customKey?: string): string {
   }
 
   // Try to get user ID from authorization header
-  const authHeader = req.headers.get('authorization');
+  const authHeader = req.headers.get("authorization");
   if (authHeader) {
     // Extract user ID from JWT token (simplified)
     try {
-      const token = authHeader.replace('Bearer ', '');
+      const token = authHeader.replace("Bearer ", "");
       // In a real app, you'd decode the JWT to get the user ID
       // For now, we'll use the token as a key
       return `user:${token.substring(0, 20)}`;
@@ -109,8 +112,10 @@ function generateKey(req: NextRequest, customKey?: string): string {
   }
 
   // Fall back to IP address
-  const forwarded = req.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown';
+  const forwarded = req.headers.get("x-forwarded-for");
+  const ip = forwarded
+    ? forwarded.split(",")[0]
+    : req.headers.get("x-real-ip") || "unknown";
   return `ip:${ip}`;
 }
 
@@ -128,7 +133,7 @@ export function rateLimit(config: RateLimitConfig) {
     if (!entry || entry.resetTime < now) {
       entry = {
         count: 0,
-        resetTime: now + config.windowMs
+        resetTime: now + config.windowMs,
       };
       store[key] = entry;
     }
@@ -144,28 +149,28 @@ export function rateLimit(config: RateLimitConfig) {
           req,
           undefined, // userId will be extracted from request if available
           req.nextUrl.pathname,
-          config.max
+          config.max,
         );
       } catch (error) {
-        console.error('Failed to log rate limit exceeded event:', error);
+        console.error("Failed to log rate limit exceeded event:", error);
       }
 
       // Return rate limit response
       return NextResponse.json(
         {
           success: false,
-          message: config.message || 'Rate limit exceeded',
-          retryAfter: Math.ceil((entry.resetTime - now) / 1000)
+          message: config.message || "Rate limit exceeded",
+          retryAfter: Math.ceil((entry.resetTime - now) / 1000),
         },
         {
           status: 429,
           headers: {
-            'Retry-After': Math.ceil((entry.resetTime - now) / 1000).toString(),
-            'X-RateLimit-Limit': config.max.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': entry.resetTime.toString()
-          }
-        }
+            "Retry-After": Math.ceil((entry.resetTime - now) / 1000).toString(),
+            "X-RateLimit-Limit": config.max.toString(),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": entry.resetTime.toString(),
+          },
+        },
       );
     }
 
@@ -178,9 +183,9 @@ export function rateLimit(config: RateLimitConfig) {
 
     // Store headers for the response
     (req as { rateLimitHeaders?: Record<string, string> }).rateLimitHeaders = {
-      'X-RateLimit-Limit': config.max.toString(),
-      'X-RateLimit-Remaining': remaining.toString(),
-      'X-RateLimit-Reset': resetTime.toString()
+      "X-RateLimit-Limit": config.max.toString(),
+      "X-RateLimit-Remaining": remaining.toString(),
+      "X-RateLimit-Reset": resetTime.toString(),
     };
 
     return null; // Continue to next middleware/handler
@@ -192,11 +197,11 @@ export function rateLimit(config: RateLimitConfig) {
  */
 export function withRateLimit<T extends unknown[]>(
   handler: (...args: T) => Promise<NextResponse>,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ) {
   return async (...args: T): Promise<NextResponse> => {
     const req = args[0] as NextRequest;
-    
+
     // Apply rate limiting
     const rateLimitResponse = await rateLimit(config)(req);
     if (rateLimitResponse) {
@@ -207,7 +212,8 @@ export function withRateLimit<T extends unknown[]>(
     const response = await handler(...args);
 
     // Add rate limit headers to the response
-    const headers = (req as { rateLimitHeaders?: Record<string, string> }).rateLimitHeaders;
+    const headers = (req as { rateLimitHeaders?: Record<string, string> })
+      .rateLimitHeaders;
     if (headers) {
       Object.entries(headers).forEach(([key, value]) => {
         response.headers.set(key, value as string);
@@ -241,7 +247,7 @@ export function getRateLimitStatus(key: string): {
     count: entry.count,
     remaining: Math.max(0, 100 - entry.count), // Assuming max of 100
     resetTime: entry.resetTime,
-    isLimited: entry.count >= 100
+    isLimited: entry.count >= 100,
   };
 }
 
@@ -265,11 +271,13 @@ export function getRateLimitStats(): {
   memoryUsage: number;
 } {
   const now = Date.now();
-  const activeKeys = Object.keys(store).filter(key => store[key].resetTime >= now);
-  
+  const activeKeys = Object.keys(store).filter(
+    (key) => store[key].resetTime >= now,
+  );
+
   return {
     totalKeys: Object.keys(store).length,
     activeKeys: activeKeys.length,
-    memoryUsage: JSON.stringify(store).length
+    memoryUsage: JSON.stringify(store).length,
   };
 }

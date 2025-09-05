@@ -1,7 +1,7 @@
-import { CreatePollForm } from '@/components/CreatePollForm'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft, BarChart3 } from 'lucide-react'
-import Link from 'next/link'
+import { CreatePollForm } from "@/components/CreatePollForm";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, BarChart3 } from "lucide-react";
+import Link from "next/link";
 
 export default function CreatePollPage() {
   return (
@@ -36,5 +36,5 @@ export default function CreatePollPage() {
         <CreatePollForm />
       </main>
     </div>
-  )
+  );
 }

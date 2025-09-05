@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getSecurityHeaders } from '@/lib/security-utils';
-import { rateLimit, RateLimitConfigs } from '@/lib/rate-limiter';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getSecurityHeaders } from "@/lib/security-utils";
+import { rateLimit, RateLimitConfigs } from "@/lib/rate-limiter";
 
 /**
  * Middleware to add security headers and rate limiting to all responses
@@ -9,19 +9,22 @@ import { rateLimit, RateLimitConfigs } from '@/lib/rate-limiter';
  */
 export async function middleware(request: NextRequest) {
   // Apply rate limiting for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (request.nextUrl.pathname.startsWith("/api/")) {
     // Determine rate limit config based on endpoint
     let rateLimitConfig = RateLimitConfigs.GENERAL;
-    
-    if (request.nextUrl.pathname.includes('/polls') && request.method === 'POST') {
+
+    if (
+      request.nextUrl.pathname.includes("/polls") &&
+      request.method === "POST"
+    ) {
       rateLimitConfig = RateLimitConfigs.CREATE_POLL;
-    } else if (request.nextUrl.pathname.includes('/vote')) {
+    } else if (request.nextUrl.pathname.includes("/vote")) {
       rateLimitConfig = RateLimitConfigs.VOTE;
-    } else if (request.nextUrl.pathname.includes('/search')) {
+    } else if (request.nextUrl.pathname.includes("/search")) {
       rateLimitConfig = RateLimitConfigs.SEARCH;
-    } else if (request.nextUrl.pathname.includes('/auth')) {
+    } else if (request.nextUrl.pathname.includes("/auth")) {
       rateLimitConfig = RateLimitConfigs.AUTH;
-    } else if (request.nextUrl.pathname.includes('/analytics')) {
+    } else if (request.nextUrl.pathname.includes("/analytics")) {
       rateLimitConfig = RateLimitConfigs.ANALYTICS;
     }
 
@@ -33,25 +36,33 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
-  
+
   // Add security headers
   const securityHeaders = getSecurityHeaders();
-  
+
   Object.entries(securityHeaders).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
 
   // Add additional security headers specific to the request
-  response.headers.set('X-Request-ID', crypto.randomUUID());
-  
+  response.headers.set("X-Request-ID", crypto.randomUUID());
+
   // Add CORS headers for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    response.headers.set('Access-Control-Allow-Origin', process.env.NODE_ENV === 'production' 
-      ? 'https://yourdomain.com' 
-      : 'http://localhost:3000'
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    response.headers.set(
+      "Access-Control-Allow-Origin",
+      process.env.NODE_ENV === "production"
+        ? "https://yourdomain.com"
+        : "http://localhost:3000",
     );
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS",
+    );
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
   }
 
   return response;
@@ -65,6 +76,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

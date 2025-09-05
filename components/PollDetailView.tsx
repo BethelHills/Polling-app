@@ -1,64 +1,73 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { PollWithResults } from '@/lib/types'
-import { submitVote } from '@/lib/mock-actions'
-import { CheckCircle, Users, Calendar } from 'lucide-react'
-import { SafeRichText } from '@/components/SafeHtmlRenderer'
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { PollWithResults } from "@/lib/types";
+import { submitVote } from "@/lib/mock-actions";
+import { CheckCircle, Users, Calendar } from "lucide-react";
+import { SafeRichText } from "@/components/SafeHtmlRenderer";
 
 interface PollDetailViewProps {
-  poll: PollWithResults
+  poll: PollWithResults;
 }
 
 export function PollDetailView({ poll }: PollDetailViewProps) {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [hasVoted, setHasVoted] = useState(poll.user_has_voted)
-  const [showThankYou, setShowThankYou] = useState(false)
-  const [votedOption, setVotedOption] = useState<string | null>(null)
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [hasVoted, setHasVoted] = useState(poll.user_has_voted);
+  const [showThankYou, setShowThankYou] = useState(false);
+  const [votedOption, setVotedOption] = useState<string | null>(null);
 
   const handleVote = async () => {
-    if (!selectedOption) return
+    if (!selectedOption) return;
 
-    setIsSubmitting(true)
-    setMessage(null)
+    setIsSubmitting(true);
+    setMessage(null);
 
     try {
-      const result = await submitVote(poll.id, selectedOption)
-      
+      const result = await submitVote(poll.id, selectedOption);
+
       if (result.success) {
-        setMessage({ type: 'success', text: result.message })
-        setHasVoted(true)
-        setVotedOption(selectedOption)
-        setShowThankYou(true)
+        setMessage({ type: "success", text: result.message });
+        setHasVoted(true);
+        setVotedOption(selectedOption);
+        setShowThankYou(true);
         // Don't refresh immediately, show thank you message first
         setTimeout(() => {
-          window.location.reload()
-        }, 2000)
+          window.location.reload();
+        }, 2000);
       } else {
-        setMessage({ type: 'error', text: result.message })
+        setMessage({ type: "error", text: result.message });
       }
     } catch {
-      setMessage({ type: 'error', text: 'An unexpected error occurred' })
+      setMessage({ type: "error", text: "An unexpected error occurred" });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -70,18 +79,18 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
               <CardTitle className="text-2xl">{poll.title}</CardTitle>
               {poll.description && (
                 <CardDescription className="text-base">
-                  <SafeRichText 
+                  <SafeRichText
                     content={poll.description}
                     fallback={poll.description}
                   />
                 </CardDescription>
               )}
             </div>
-            <Badge variant={poll.is_active ? 'default' : 'secondary'}>
-              {poll.is_active ? 'Active' : 'Closed'}
+            <Badge variant={poll.is_active ? "default" : "secondary"}>
+              {poll.is_active ? "Active" : "Closed"}
             </Badge>
           </div>
-          
+
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
@@ -108,8 +117,9 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
                   Thank You for Voting!
                 </h3>
                 <p className="text-green-700">
-                  Your vote has been recorded. You selected: <strong>
-                    {poll.options.find(opt => opt.id === votedOption)?.text}
+                  Your vote has been recorded. You selected:{" "}
+                  <strong>
+                    {poll.options.find((opt) => opt.id === votedOption)?.text}
                   </strong>
                 </p>
                 <p className="text-sm text-green-600 mt-2">
@@ -137,17 +147,19 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
                   key={option.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                     selectedOption === option.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => setSelectedOption(option.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full border-2 ${
-                      selectedOption === option.id
-                        ? 'border-primary bg-primary'
-                        : 'border-muted-foreground'
-                    }`} />
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 ${
+                        selectedOption === option.id
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground"
+                      }`}
+                    />
                     <span className="font-medium">{option.text}</span>
                   </div>
                 </div>
@@ -155,11 +167,13 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
             </div>
 
             {message && (
-              <div className={`p-3 rounded-md text-sm ${
-                message.type === 'success'
-                  ? 'bg-green-50 text-green-700 border border-green-200'
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+              <div
+                className={`p-3 rounded-md text-sm ${
+                  message.type === "success"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
                 {message.text}
               </div>
             )}
@@ -169,7 +183,7 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
               disabled={!selectedOption || isSubmitting}
               className="w-full"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Vote'}
+              {isSubmitting ? "Submitting..." : "Submit Vote"}
             </Button>
           </CardContent>
         </Card>
@@ -224,5 +238,5 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
