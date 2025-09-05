@@ -155,7 +155,7 @@ export function isSecureEnvironment(): boolean {
 /**
  * Get environment summary for debugging (without exposing secrets)
  */
-export function getEnvironmentSummary(): Record<string, any> {
+export function getEnvironmentSummary(): Record<string, unknown> {
   const config = getEnvironmentConfig();
   
   return {

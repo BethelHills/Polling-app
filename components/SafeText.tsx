@@ -246,7 +246,7 @@ export function SafeMarkdown({
   if (!content) return null;
 
   // Basic markdown to HTML conversion (safe subset)
-  let html = content
+  const html = content
     // Bold text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     // Italic text

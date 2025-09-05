@@ -130,7 +130,7 @@ export async function GET(
     // Get recent activity (last 10 votes)
     const recentActivity = votes.slice(0, 10).map(vote => ({
       id: vote.id,
-      option_text: (vote.poll_options as any)?.text || 'Unknown',
+      option_text: (vote.poll_options as { text?: string })?.text || 'Unknown',
       created_at: vote.created_at,
       time_ago: getTimeAgo(vote.created_at)
     }))

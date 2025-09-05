@@ -27,11 +27,11 @@ interface ErrorResponse {
   success: false
   message: string
   code?: string
-  details?: any
+  details?: unknown
 }
 
 // Success response interface
-interface SuccessResponse<T = any> {
+interface SuccessResponse<T = unknown> {
   success: true
   message?: string
   data?: T
@@ -40,7 +40,7 @@ interface SuccessResponse<T = any> {
 /**
  * Handle database errors and return appropriate HTTP responses
  */
-export function handleDatabaseError(error: any): NextResponse<ErrorResponse> {
+export function handleDatabaseError(error: { code?: string; message?: string }): NextResponse<ErrorResponse> {
   console.error('Database error:', error)
 
   switch (error.code) {
@@ -137,7 +137,7 @@ export function handleAuthorizationError(message: string = "Access denied"): Nex
 /**
  * Handle validation errors
  */
-export function handleValidationError(errors: any[]): NextResponse<ErrorResponse> {
+export function handleValidationError(errors: Array<{ field: string; message: string }>): NextResponse<ErrorResponse> {
   return NextResponse.json(
     {
       success: false,
@@ -198,7 +198,7 @@ export function createSuccessResponse<T>(
 /**
  * Handle vote-specific errors
  */
-export function handleVoteError(error: any): NextResponse<ErrorResponse> {
+export function handleVoteError(error: { code?: string; message?: string }): NextResponse<ErrorResponse> {
   if (error.code === DB_ERROR_CODES.UNIQUE_VIOLATION) {
     return NextResponse.json(
       {
@@ -216,7 +216,7 @@ export function handleVoteError(error: any): NextResponse<ErrorResponse> {
 /**
  * Handle poll-specific errors
  */
-export function handlePollError(error: any): NextResponse<ErrorResponse> {
+export function handlePollError(error: { code?: string; message?: string }): NextResponse<ErrorResponse> {
   if (error.code === DB_ERROR_CODES.FOREIGN_KEY_VIOLATION) {
     return NextResponse.json(
       {
@@ -234,7 +234,7 @@ export function handlePollError(error: any): NextResponse<ErrorResponse> {
 /**
  * Generic error handler for API routes
  */
-export function handleApiError(error: any, context: string = "API"): NextResponse<ErrorResponse> {
+export function handleApiError(error: { code?: string; message?: string }, context: string = "API"): NextResponse<ErrorResponse> {
   console.error(`${context} error:`, error)
 
   // Handle known error types
@@ -259,7 +259,7 @@ export function handleApiError(error: any, context: string = "API"): NextRespons
 /**
  * Async error wrapper for API routes
  */
-export function withErrorHandling<T extends any[], R>(
+export function withErrorHandling<T extends unknown[], R>(
   handler: (...args: T) => Promise<NextResponse<R>>
 ) {
   return async (...args: T): Promise<NextResponse<R | ErrorResponse>> => {

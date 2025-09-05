@@ -100,13 +100,13 @@ export async function GET(
           
           canViewStats = pollOwner?.owner_id === userData.user.id
         }
-      } catch (error) {
+      } catch {
         // Ignore auth errors for public sharing
       }
     }
 
     // Get basic poll statistics
-    const { data: pollStats, error: statsError } = await supabaseServerClient
+    const { data: pollStats } = await supabaseServerClient
       .from('poll_options')
       .select('votes')
       .eq('poll_id', pollId)

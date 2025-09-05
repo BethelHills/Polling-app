@@ -57,7 +57,7 @@ export interface AuditLogEntry {
   ip_address?: string;
   user_agent?: string;
   request_id?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Audit logger class
@@ -166,7 +166,7 @@ export class AuditLogger {
     request: NextRequest,
     userId: string,
     pollId: string,
-    changes: Record<string, any>
+    changes: Record<string, unknown>
   ): Promise<void> {
     await this.logWithRequest(request, {
       user_id: userId,
@@ -252,7 +252,7 @@ export class AuditLogger {
     request: NextRequest,
     userId?: string,
     reason: string,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): Promise<void> {
     await this.logWithRequest(request, {
       user_id: userId,
@@ -273,7 +273,7 @@ export class AuditLogger {
     request: NextRequest,
     userId?: string,
     violation: string,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): Promise<void> {
     await this.logWithRequest(request, {
       user_id: userId,
@@ -334,7 +334,7 @@ export class AuditLogger {
     action: string,
     targetType: AuditTargetType,
     targetId?: string,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): Promise<void> {
     await this.logWithRequest(request, {
       user_id: adminUserId,
@@ -365,7 +365,7 @@ export const auditLog = {
   /**
    * Log poll update
    */
-  pollUpdated: async (request: NextRequest, userId: string, pollId: string, changes: Record<string, any>) => {
+  pollUpdated: async (request: NextRequest, userId: string, pollId: string, changes: Record<string, unknown>) => {
     await auditLogger.logPollUpdate(request, userId, pollId, changes);
   },
 
@@ -393,14 +393,14 @@ export const auditLog = {
   /**
    * Log suspicious activity
    */
-  suspiciousActivity: async (request: NextRequest, userId?: string, reason: string, details?: Record<string, any>) => {
+  suspiciousActivity: async (request: NextRequest, userId?: string, reason: string, details?: Record<string, unknown>) => {
     await auditLogger.logSuspiciousActivity(request, userId, reason, details);
   },
 
   /**
    * Log security violation
    */
-  securityViolation: async (request: NextRequest, userId?: string, violation: string, details?: Record<string, any>) => {
+  securityViolation: async (request: NextRequest, userId?: string, violation: string, details?: Record<string, unknown>) => {
     await auditLogger.logSecurityViolation(request, userId, violation, details);
   },
 
@@ -427,7 +427,7 @@ export const auditLog = {
     action: string,
     targetType: AuditTargetType,
     targetId?: string,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ) => {
     await auditLogger.logAdminAction(request, adminUserId, action, targetType, targetId, details);
   }

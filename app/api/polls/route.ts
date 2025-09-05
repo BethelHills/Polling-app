@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServerClient } from '@/lib/supabaseServerClient'
 import { auditLog } from '@/lib/audit-logger'
-import { validateAndSanitizePoll, formatValidationErrors } from '@/lib/validation-schemas'
+import { validateAndSanitizePoll } from '@/lib/validation-schemas'
+import { PollOption } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -164,7 +165,7 @@ export async function GET() {
     // Calculate total votes for each poll
     const pollsWithVotes = polls.map(poll => ({
       ...poll,
-      total_votes: poll.options.reduce((sum: number, option: any) => sum + option.votes, 0)
+      total_votes: poll.options.reduce((sum: number, option: PollOption) => sum + option.votes, 0)
     }))
 
     return NextResponse.json(

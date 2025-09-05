@@ -1,7 +1,7 @@
 'use server'
 
 import { supabaseAdmin } from './supabase'
-import { Poll, PollWithResults, Vote } from './types'
+import { Poll, PollWithResults, PollOption } from './types'
 import { revalidatePath } from 'next/cache'
 
 export async function getPoll(id: string): Promise<PollWithResults | null> {
@@ -27,8 +27,8 @@ export async function getPoll(id: string): Promise<PollWithResults | null> {
     }
 
     // Calculate percentages and total votes
-    const totalVotes = poll.options.reduce((sum: number, option: any) => sum + option.votes, 0)
-    const optionsWithPercentage = poll.options.map((option: any) => ({
+    const totalVotes = poll.options.reduce((sum: number, option: PollOption) => sum + option.votes, 0)
+    const optionsWithPercentage = poll.options.map((option: PollOption) => ({
       ...option,
       percentage: totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0
     }))
@@ -68,7 +68,7 @@ export async function getAllPolls(): Promise<Poll[]> {
     // Calculate total votes for each poll
     return polls.map(poll => ({
       ...poll,
-      total_votes: poll.options.reduce((sum: number, option: any) => sum + option.votes, 0)
+      total_votes: poll.options.reduce((sum: number, option: PollOption) => sum + option.votes, 0)
     }))
   } catch (error) {
     console.error('Error fetching polls:', error)
@@ -122,7 +122,7 @@ export async function submitVote(pollId: string, optionId: string): Promise<{ su
     // Update the option vote count
     const { error: updateError } = await supabaseAdmin
       .from('poll_options')
-      .update({ votes: (option as any).votes + 1 })
+      .update({ votes: (option as PollOption).votes + 1 })
       .eq('id', optionId)
 
     if (updateError) {

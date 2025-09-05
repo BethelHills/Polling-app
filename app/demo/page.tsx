@@ -158,11 +158,11 @@ export default function DemoPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                  Click "Submit Vote" button
+                  Click &quot;Submit Vote&quot; button
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                  See "Thank You" confirmation
+                  See &quot;Thank You&quot; confirmation
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">4</div>

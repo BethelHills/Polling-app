@@ -10,7 +10,7 @@ interface ValidationState {
 
 interface UsePollValidationReturn {
   validate: (data: Partial<CreatePollInput>) => ValidationState
-  validateField: (field: keyof CreatePollInput, value: any, allData?: Partial<CreatePollInput>) => string | null
+  validateField: (field: keyof CreatePollInput, value: unknown, allData?: Partial<CreatePollInput>) => string | null
   clearErrors: () => void
   errors: Record<string, string>
   isValid: boolean
@@ -59,12 +59,12 @@ export function usePollValidation(): UsePollValidationReturn {
 
   const validateField = useCallback((
     field: keyof CreatePollInput, 
-    value: any, 
+    value: unknown, 
     allData?: Partial<CreatePollInput>
   ): string | null => {
     try {
       // Create field-specific validation
-      let fieldSchema: z.ZodType<any>
+      let fieldSchema: z.ZodType<unknown>
       
       switch (field) {
         case 'title':

@@ -11,7 +11,7 @@ import { AlertMessage } from '@/components/ui/alert-message'
 import { 
   validatePollForm, 
   validateField, 
-  getCharacterCount, 
+  // getCharacterCount, 
   getInitialFormState,
   type FormState 
 } from '@/lib/form-validation'
@@ -140,15 +140,16 @@ export function CreatePollForm() {
       } else {
         setMessage({ type: 'error', text: result.message })
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'An unexpected error occurred' })
     } finally {
       setFormState(prev => ({ ...prev, isSubmitting: false }))
     }
   }
 
-  const titleCharCount = getCharacterCount(formState.title, 200)
-  const descriptionCharCount = getCharacterCount(formState.description, 500)
+  // Character counts for future use
+  // const titleCharCount = getCharacterCount(formState.title, 200)
+  // const descriptionCharCount = getCharacterCount(formState.description, 500)
 
   return (
     <Card className="overflow-hidden">

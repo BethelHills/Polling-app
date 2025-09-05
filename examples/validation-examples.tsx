@@ -57,7 +57,7 @@ export function HookValidationExample() {
     options: ['', '']
   })
 
-  const handleFieldChange = (field: keyof CreatePollInput, value: any) => {
+  const handleFieldChange = (field: keyof CreatePollInput, value: unknown) => {
     const newData = { ...formData, [field]: value }
     setFormData(newData)
     
@@ -177,10 +177,10 @@ export function RealTimeValidationExample() {
   
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
-  const validateField = (field: keyof CreatePollInput, value: any) => {
+  const validateField = (field: keyof CreatePollInput, value: unknown) => {
     try {
       // Create field-specific validation
-      let fieldSchema: any
+      let fieldSchema: z.ZodType<unknown>
       
       switch (field) {
         case 'title':
@@ -208,7 +208,7 @@ export function RealTimeValidationExample() {
     }
   }
 
-  const handleFieldChange = (field: keyof CreatePollInput, value: any) => {
+  const handleFieldChange = (field: keyof CreatePollInput, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     validateField(field, value)
   }

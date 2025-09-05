@@ -177,7 +177,7 @@ export function rateLimit(config: RateLimitConfig) {
     const resetTime = entry.resetTime;
 
     // Store headers for the response
-    (req as any).rateLimitHeaders = {
+    (req as { rateLimitHeaders?: Record<string, string> }).rateLimitHeaders = {
       'X-RateLimit-Limit': config.max.toString(),
       'X-RateLimit-Remaining': remaining.toString(),
       'X-RateLimit-Reset': resetTime.toString()
@@ -190,7 +190,7 @@ export function rateLimit(config: RateLimitConfig) {
 /**
  * Apply rate limiting to a Next.js API route handler
  */
-export function withRateLimit<T extends any[]>(
+export function withRateLimit<T extends unknown[]>(
   handler: (...args: T) => Promise<NextResponse>,
   config: RateLimitConfig
 ) {
@@ -207,7 +207,7 @@ export function withRateLimit<T extends any[]>(
     const response = await handler(...args);
 
     // Add rate limit headers to the response
-    const headers = (req as any).rateLimitHeaders;
+    const headers = (req as { rateLimitHeaders?: Record<string, string> }).rateLimitHeaders;
     if (headers) {
       Object.entries(headers).forEach(([key, value]) => {
         response.headers.set(key, value as string);

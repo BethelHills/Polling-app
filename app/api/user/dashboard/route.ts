@@ -102,8 +102,8 @@ export async function GET(request: NextRequest) {
       ...userVotes.slice(0, 5).map(vote => ({
         type: 'vote_cast',
         id: vote.id,
-        title: `Voted on "${(vote.polls as any)?.title || 'Unknown Poll'}"`,
-        option: (vote.poll_options as any)?.text || 'Unknown',
+        title: `Voted on "${(vote.polls as { title?: string })?.title || 'Unknown Poll'}"`,
+        option: (vote.poll_options as { text?: string })?.text || 'Unknown',
         created_at: vote.created_at,
         time_ago: getTimeAgo(vote.created_at)
       }))
@@ -182,8 +182,8 @@ export async function GET(request: NextRequest) {
           votes: {
             recent: userVotes.slice(0, 10).map(vote => ({
               id: vote.id,
-              poll_title: (vote.polls as any)?.title || 'Unknown Poll',
-              option_text: (vote.poll_options as any)?.text || 'Unknown',
+              poll_title: (vote.polls as { title?: string })?.title || 'Unknown Poll',
+              option_text: (vote.poll_options as { text?: string })?.text || 'Unknown',
               created_at: vote.created_at,
               time_ago: getTimeAgo(vote.created_at)
             })),

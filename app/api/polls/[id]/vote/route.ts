@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServerClient } from '@/lib/supabaseServerClient'
 import { z } from 'zod'
-import { handleVoteError, handleAuthError, handleNotFoundError, createSuccessResponse } from '@/lib/error-handler'
+import { handleVoteError, handleAuthError, handleNotFoundError } from '@/lib/error-handler'
 import { auditLog } from '@/lib/audit-logger'
 
 // Validation schema for voting

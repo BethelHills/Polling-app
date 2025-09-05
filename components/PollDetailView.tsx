@@ -43,7 +43,7 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
       } else {
         setMessage({ type: 'error', text: result.message })
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'An unexpected error occurred' })
     } finally {
       setIsSubmitting(false)
@@ -127,7 +127,7 @@ export function PollDetailView({ poll }: PollDetailViewProps) {
           <CardHeader>
             <CardTitle>Cast Your Vote</CardTitle>
             <CardDescription>
-              Select one option below and click "Submit Vote"
+              Select one option below and click &quot;Submit Vote&quot;
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

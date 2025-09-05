@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServerClient } from '@/lib/supabaseServerClient'
+import { PollOption } from '@/lib/types'
 
 /**
  * GET /api/polls/search
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
 
     // Process the results
     const processedPolls = polls.map(poll => {
-      const totalVotes = poll.poll_options.reduce((sum: number, option: any) => sum + option.votes, 0)
+      const totalVotes = poll.poll_options.reduce((sum: number, option: PollOption) => sum + option.votes, 0)
       return {
         id: poll.id,
         title: poll.title,
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
         owner_id: poll.owner_id,
         total_votes: totalVotes,
         option_count: poll.poll_options.length,
-        options: poll.poll_options.map((option: any) => ({
+        options: poll.poll_options.map((option: PollOption) => ({
           id: option.id,
           text: option.text,
           votes: option.votes
@@ -146,7 +147,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get popular categories (if you have categories)
-    const { data: categories, error: categoryError } = await supabaseServerClient
+    const { data: categories } = await supabaseServerClient
       .from('polls')
       .select('category')
       .not('category', 'is', null)
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    let suggestions: any[] = []
+    let suggestions: string[] = []
 
     if (type === 'all' || type === 'polls') {
       // Get poll title suggestions

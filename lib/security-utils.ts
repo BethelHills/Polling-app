@@ -12,7 +12,7 @@ const createDOMPurify = () => {
     // Server-side: return a mock DOMPurify that just returns the input
     // This is safe because we're only using it for sanitization
     return {
-      sanitize: (html: string, config?: any) => html,
+      sanitize: (html: string, config?: Record<string, unknown>) => html,
       version: 'server-side'
     };
   }
@@ -384,7 +384,7 @@ export const DOMPurifyConfigs = {
  * @param config - DOMPurify configuration to use
  * @returns Sanitized text
  */
-export function sanitizeWithConfig(text: string, config: any = DOMPurifyConfigs.STRICT): string {
+export function sanitizeWithConfig(text: string, config: Record<string, unknown> = DOMPurifyConfigs.STRICT): string {
   if (!text) return '';
   const domPurify = createDOMPurify();
   return String(domPurify.sanitize(text, config));
