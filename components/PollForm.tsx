@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 const pollFormSchema = z.object({
   title: z
     .string()
+    .min(1, "Question is required")
     .min(3, "Title must be at least 3 characters")
     .max(200, "Title must be less than 200 characters"),
   description: z
@@ -319,6 +320,7 @@ export function PollForm() {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeOption(index)}
+                        aria-label={`Remove option ${index + 1}`}
                         className="opacity-0 group-hover:opacity-70 hover:opacity-100 transition-all duration-200 h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
                       >
                         <X className="h-4 w-4" />

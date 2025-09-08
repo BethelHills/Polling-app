@@ -156,7 +156,7 @@ cp .env.example .env.local
 # Add your Supabase keys
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
 ### **2. Database Setup**

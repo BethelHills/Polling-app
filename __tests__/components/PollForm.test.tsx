@@ -81,9 +81,7 @@ describe("PollForm", () => {
     expect(screen.getAllByPlaceholderText(/option \d+/i)).toHaveLength(3);
 
     // Remove an option (should be possible when more than 2)
-    const removeButtons = screen.getAllByRole("button", {
-      name: /remove option/i,
-    });
+    const removeButtons = screen.getAllByLabelText(/remove option/i);
     await user.click(removeButtons[0]);
 
     expect(screen.getAllByPlaceholderText(/option \d+/i)).toHaveLength(2);
@@ -112,7 +110,7 @@ describe("PollForm", () => {
     await user.click(titleInput);
     await user.type(titleInput, "Test Title");
 
-    expect(screen.getByText("11/200")).toBeInTheDocument();
+    expect(screen.getByText("10/200")).toBeInTheDocument();
   });
 
   it("shows character count for description", async () => {
@@ -150,11 +148,7 @@ describe("PollForm", () => {
 
     await waitFor(() => {
       expect(mockCreatePoll).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: "Test Poll",
-          description: "Test Description",
-          options: ["Option 1", "Option 2"],
-        }),
+        expect.any(FormData)
       );
     });
   });

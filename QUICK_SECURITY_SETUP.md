@@ -17,7 +17,7 @@ Add your keys:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 NODE_ENV=development
 ```
 

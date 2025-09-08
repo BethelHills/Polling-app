@@ -3,17 +3,19 @@ import { POST } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
 
 // Mock the Supabase server client - Your pattern works!
-const mockGetUser = jest.fn();
-const mockFrom = jest.fn();
-
 jest.mock("@/lib/supabaseServerClient", () => ({
   supabaseServerClient: {
     auth: {
-      getUser: mockGetUser,
+      getUser: jest.fn(),
     },
-    from: mockFrom,
+    from: jest.fn(),
   },
 }));
+
+// Get the mocked functions after the mock is set up
+const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+const mockGetUser = supabaseServerClient.auth.getUser;
+const mockFrom = supabaseServerClient.from;
 
 // Mock audit logger
 jest.mock("@/lib/audit-logger", () => ({

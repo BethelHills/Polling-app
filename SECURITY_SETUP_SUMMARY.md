@@ -67,7 +67,7 @@ export const supabaseServerClient = createClient(url, supabaseServiceKey);
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
 ### **5. 🛡️ Security Tools**
@@ -102,7 +102,7 @@ cp .env.example .env.local
 # .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 NODE_ENV=development
 ```
 
@@ -125,7 +125,7 @@ npm run security:check
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
 #### **Step 3: Verify CI/CD**

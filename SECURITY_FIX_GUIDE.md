@@ -57,10 +57,10 @@ export const supabaseServerClient = createClient(
 
 ```bash
 # ❌ Wrong
-SUPABASE_SERVICE_ROLE=sk-...
+SUPABASE_SERVICE_ROLE=your-service-role-key-here
 
 # ✅ Correct
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
 ### **2. Use Existing Secure Clients**

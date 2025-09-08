@@ -29,11 +29,7 @@ const sanitizedString = z
   .transform((val) => {
     // Sanitize the string using DOMPurify
     return domPurify
-      .sanitize(val, {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-        KEEP_CONTENT: true,
-      })
+      .sanitize(val)
       .trim();
   });
 
@@ -48,11 +44,7 @@ const pollOptionSchema = z
   .transform((val) => {
     // Sanitize the string using DOMPurify
     return domPurify
-      .sanitize(val, {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-        KEEP_CONTENT: true,
-      })
+      .sanitize(val)
       .trim();
   });
 
@@ -68,11 +60,7 @@ export const createPollSchema = z.object({
     .transform((val) => {
       // Sanitize the string using DOMPurify
       return domPurify
-        .sanitize(val, {
-          ALLOWED_TAGS: [],
-          ALLOWED_ATTR: [],
-          KEEP_CONTENT: true,
-        })
+        .sanitize(val)
         .trim();
     }),
 
@@ -85,11 +73,7 @@ export const createPollSchema = z.object({
       if (!val) return "";
       // Sanitize the string using DOMPurify
       return domPurify
-        .sanitize(val, {
-          ALLOWED_TAGS: [],
-          ALLOWED_ATTR: [],
-          KEEP_CONTENT: true,
-        })
+        .sanitize(val)
         .trim();
     }),
 

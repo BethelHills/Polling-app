@@ -254,19 +254,20 @@ export function handlePollError(error: {
  * Generic error handler for API routes
  */
 export function handleApiError(
-  error: { code?: string; message?: string },
+  error: { code?: string; message?: string; name?: string; issues?: unknown },
   context: string = "API",
 ): NextResponse<ErrorResponse> {
   console.error(`${context} error:`, error);
 
   // Handle known error types
-  if (error.code && Object.values(DB_ERROR_CODES).includes(error.code as any)) {
+  const dbErrorCodes = Object.values(DB_ERROR_CODES) as string[];
+  if (error.code && dbErrorCodes.includes(error.code)) {
     return handleDatabaseError(error);
   }
 
   // Handle validation errors
   if (error.name === "ZodError") {
-    return handleValidationError(error.issues);
+    return handleValidationError(error.issues as { field: string; message: string; }[]);
   }
 
   // Handle authentication errors
@@ -288,7 +289,7 @@ export function withErrorHandling<T extends unknown[], R>(
     try {
       return await handler(...args);
     } catch (error) {
-      return handleApiError(error, "API Route");
+      return handleApiError(error as { code?: string; message?: string; name?: string; issues?: unknown }, "API Route");
     }
   };
 }

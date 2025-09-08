@@ -22,10 +22,10 @@ This guide covers proper environment variable management for the polling applica
 
 ```bash
 # ❌ NEVER do this - exposes service role key to client
-NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=sk-...
+NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # ❌ NEVER commit secrets to repository
-SUPABASE_SERVICE_ROLE_KEY=sk-... # in .env files
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here # in .env files
 
 # ❌ NEVER use service role key in client-side code
 const supabase = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY)
@@ -38,7 +38,7 @@ const supabase = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 
 # ✅ Use service role key only server-side
-SUPABASE_SERVICE_ROLE_KEY=sk-... # in .env.local or GitHub Secrets
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here # in .env.local or GitHub Secrets
 
 # ✅ Proper client-side usage
 const supabase = createClient(url, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -97,7 +97,7 @@ nano .env.local
 # .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 NODE_ENV=development
 ```
 
@@ -122,7 +122,7 @@ NODE_ENV=development
 # Required secrets for CI/CD
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=sk-...
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # Optional deployment secrets
 VERCEL_TOKEN=your-vercel-token
@@ -136,15 +136,15 @@ VERCEL_PROJECT_ID=your-project-id
 # For different environments, use prefixes:
 # Development
 DEV_NEXT_PUBLIC_SUPABASE_URL=https://dev-project.supabase.co
-DEV_SUPABASE_SERVICE_ROLE_KEY=sk-...
+DEV_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # Staging
 STAGING_NEXT_PUBLIC_SUPABASE_URL=https://staging-project.supabase.co
-STAGING_SUPABASE_SERVICE_ROLE_KEY=sk-...
+STAGING_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # Production
 PROD_NEXT_PUBLIC_SUPABASE_URL=https://prod-project.supabase.co
-PROD_SUPABASE_SERVICE_ROLE_KEY=sk-...
+PROD_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ```
 
 ## 🚀 **CI/CD Configuration**
