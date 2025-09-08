@@ -8,7 +8,7 @@ import {
   mockUser,
   mockPoll,
   mockPollOptions,
-} from "../../mocks/supabase-mocks.ts.bak";
+} from "../../mocks/supabase-mocks";
 
 // Setup global mocks
 setupGlobalMocks();

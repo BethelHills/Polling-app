@@ -25,6 +25,24 @@ export function cleanupMocks() {
   // Cleanup mocks if needed
 }
 
+export function createApiTestMocks(options: { authenticated?: boolean } = {}) {
+  const mockServerClient = createMockSupabaseServerClient();
+  
+  if (options.authenticated === false) {
+    mockServerClient.auth.getUser.mockResolvedValue({ data: { user: null }, error: null });
+  }
+  
+  return {
+    mockUser,
+    mockPoll,
+    mockPollOptions,
+    mockServerClient,
+    setupGlobalMocks,
+    cleanupMocks,
+    createMockSupabaseServerClient,
+  };
+}
+
 export function createMockSupabaseServerClient() {
   return {
     auth: {

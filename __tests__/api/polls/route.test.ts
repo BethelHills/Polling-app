@@ -4,7 +4,7 @@ import {
   createMockRequest,
   mockPollData,
   mockDbResponses,
-} from "../../utils/test-utils.ts.bak";
+} from "../../utils/test-utils";
 
 // Mock the Supabase client
 jest.mock("@/lib/supabase", () => ({

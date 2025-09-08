@@ -161,7 +161,7 @@ describe("OptionInput", () => {
 
     const input = screen.getByPlaceholderText(/option 1/i);
     await user.click(input);
-    await user.blur(input);
+    input.blur();
 
     await user.type(input, "Option 1");
 

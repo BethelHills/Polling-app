@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { POST } from "@/app/api/polls/route";
-import { createMockRequest } from "../../utils/test-utils.ts.bak";
+import { createMockRequest } from "../../utils/test-utils";
 
 // Mock the Supabase client
 jest.mock("@/lib/supabase", () => ({
