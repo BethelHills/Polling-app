@@ -32,12 +32,10 @@ describe("PollForm", () => {
 
     const submitButton = screen.getByRole("button", { name: /create poll/i });
     
-    // Debug: Check if the form has any validation errors before clicking
-    console.log("Form errors before submit:", screen.queryByText(/question is required/i));
-    
+    // Try to submit the form to trigger validation
     await user.click(submitButton);
 
-    // Wait a bit longer for validation to trigger
+    // Wait for validation to trigger
     await waitFor(() => {
       expect(screen.getByText(/question is required/i)).toBeInTheDocument();
     }, { timeout: 3000 });
@@ -101,6 +99,10 @@ describe("PollForm", () => {
     // Type the same text in both options
     await user.type(optionInputs[0], "Same Option");
     await user.type(optionInputs[1], "Same Option");
+    
+    // Try to submit the form to trigger validation
+    const submitButton = screen.getByRole("button", { name: /create poll/i });
+    await user.click(submitButton);
 
     await waitFor(() => {
       expect(screen.getByText(/options must be unique/i)).toBeInTheDocument();
@@ -213,11 +215,11 @@ describe("PollForm", () => {
     });
   });
 
-  it("disables submit button when form is invalid", async () => {
+  it("submit button is always enabled", async () => {
     render(<PollForm />);
 
     const submitButton = screen.getByRole("button", { name: /create poll/i });
-    expect(submitButton).toBeDisabled();
+    expect(submitButton).not.toBeDisabled();
   });
 
   it("enables submit button when form is valid", async () => {

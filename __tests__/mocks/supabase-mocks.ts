@@ -17,10 +17,6 @@ export const mockPollOptions = [
   { id: "2", text: "Option 2", poll_id: mockPoll.id },
 ];
 
-export function setupGlobalMocks() {
-  // Setup global mocks if needed
-}
-
 export function cleanupMocks() {
   // Cleanup mocks if needed
 }
@@ -37,7 +33,6 @@ export function createApiTestMocks(options: { authenticated?: boolean } = {}) {
     mockPoll,
     mockPollOptions,
     mockServerClient,
-    setupGlobalMocks,
     cleanupMocks,
     createMockSupabaseServerClient,
   };

@@ -1,14 +1,6 @@
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PollForm } from "../components/PollForm";
-
-// Mock Next.js router
-const mockPush = jest.fn();
-jest.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}));
 
 // Mock the createPoll function
 jest.mock("@/lib/mock-actions", () => ({
@@ -44,9 +36,9 @@ describe("PollForm", () => {
   it("enables submit button when form is valid", async () => {
     render(<PollForm />);
 
-    // Initially, submit button should be disabled
+    // Submit button should always be enabled now
     const submitButton = screen.getByRole("button", { name: /create poll/i });
-    expect(submitButton).toBeDisabled();
+    expect(submitButton).not.toBeDisabled();
 
     // Fill in valid form data
     fireEvent.change(screen.getByPlaceholderText("What's your poll about?"), {
@@ -59,7 +51,7 @@ describe("PollForm", () => {
       target: { value: "React" },
     });
 
-    // Check that submit button is now enabled when form is valid
+    // Submit button should still be enabled
     expect(submitButton).not.toBeDisabled();
 
     // Since current logic only logs to console, we check that no validation errors appear

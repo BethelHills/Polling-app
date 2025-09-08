@@ -3,15 +3,11 @@ import { POST, GET } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
 import {
   createApiTestMocks,
-  setupGlobalMocks,
   cleanupMocks,
   mockUser,
   mockPoll,
   mockPollOptions,
 } from "../../mocks/supabase-mocks";
-
-// Setup global mocks
-setupGlobalMocks();
 
 // Mock the Supabase server client
 jest.mock("@/lib/supabaseServerClient", () => ({

@@ -76,8 +76,9 @@ export function PollForm() {
       description: "",
       options: [{ text: "" }, { text: "" }],
     },
-    mode: "onBlur",
+    mode: "onChange",
     reValidateMode: "onChange",
+    shouldFocusError: true,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -124,6 +125,11 @@ export function PollForm() {
     }
   };
 
+  const onError = (errors: any) => {
+    // This will be called when form validation fails
+    console.log("Form validation errors:", errors);
+  };
+
   const addOption = () => {
     if (fields.length < 10) {
       append({ text: "" });
@@ -161,7 +167,7 @@ export function PollForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
           {/* Poll Title */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-sm font-medium">
@@ -342,10 +348,11 @@ export function PollForm() {
             {/* Options validation error */}
             {errors.options &&
               typeof errors.options === "object" &&
-              "message" in errors.options && (
+              ("message" in errors.options || 
+               ("root" in errors.options && errors.options.root && "message" in errors.options.root)) && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
                   <X className="h-3 w-3" />
-                  {errors.options.message}
+                  {errors.options.message || (errors.options.root && errors.options.root.message)}
                 </p>
               )}
 
@@ -372,7 +379,7 @@ export function PollForm() {
           <div className="pt-4 border-t">
             <Button
               type="submit"
-              disabled={!isValid || isSubmitting}
+              disabled={isSubmitting}
               className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               {isSubmitting ? (
