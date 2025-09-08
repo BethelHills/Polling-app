@@ -97,6 +97,9 @@ jest.mock("@/lib/supabase", () => ({
   },
 }));
 
+// Mock Supabase server client to prevent real client creation
+// Note: Individual test files should set up their own mocks as needed
+
 // Mock audit logger to prevent real audit log entries during tests
 jest.mock("@/lib/audit-logger", () => ({
   auditLog: {

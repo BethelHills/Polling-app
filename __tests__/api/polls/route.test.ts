@@ -1,12 +1,4 @@
-import "@testing-library/jest-dom";
-import { POST, GET } from "@/app/api/polls/route";
-import {
-  createMockRequest,
-  mockPollData,
-  mockDbResponses,
-} from "../../utils/test-utils";
-
-// Mock the Supabase server client
+// Mock the Supabase server client BEFORE imports
 jest.mock("@/lib/supabaseServerClient", () => ({
   supabaseServerClient: {
     auth: {
@@ -20,6 +12,14 @@ jest.mock("@/lib/supabaseServerClient", () => ({
     from: jest.fn(),
   },
 }));
+
+import "@testing-library/jest-dom";
+import { POST, GET } from "@/app/api/polls/route";
+import {
+  createMockRequest,
+  mockPollData,
+  mockDbResponses,
+} from "../../utils/test-utils";
 
 // Mock Next.js cache revalidation
 jest.mock("next/cache", () => ({

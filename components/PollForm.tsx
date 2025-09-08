@@ -76,7 +76,7 @@ export function PollForm() {
       description: "",
       options: [{ text: "" }, { text: "" }],
     },
-    mode: "onSubmit",
+    mode: "onBlur",
     reValidateMode: "onChange",
   });
 
