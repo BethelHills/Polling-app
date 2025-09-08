@@ -5,7 +5,12 @@ import { NextRequest } from "next/server";
 jest.mock("@/lib/supabaseServerClient", () => ({
   supabaseServerClient: {
     auth: {
-      getUser: jest.fn(),
+      getUser: jest.fn().mockImplementation((token) => {
+        if (token === "test-token") {
+          return Promise.resolve({ data: { user: { id: "test-user-id" } }, error: null });
+        }
+        return Promise.resolve({ data: { user: null }, error: { message: "Invalid token" } });
+      }),
     },
     from: jest.fn(),
   },
@@ -24,19 +29,24 @@ describe("Simple Working Example - Your Mock Pattern", () => {
   let mockSupabaseClient: any;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
     // Get the mocked client
     const { supabaseServerClient } = require("@/lib/supabaseServerClient");
     mockSupabaseClient = supabaseServerClient;
+    
+    // Reset mock calls but keep implementations
+    jest.clearAllMocks();
+    
+    // Re-setup the auth mock after clearing
+    mockSupabaseClient.auth.getUser.mockImplementation((token) => {
+      if (token === "test-token") {
+        return Promise.resolve({ data: { user: { id: "test-user-id" } }, error: null });
+      }
+      return Promise.resolve({ data: { user: null }, error: { message: "Invalid token" } });
+    });
   });
 
   it("should work with your exact mock pattern", async () => {
-    // Your mock pattern works perfectly!
-    mockSupabaseClient.auth.getUser.mockResolvedValue({
-      data: { user: { id: "user1" } },
-      error: null,
-    });
+    // The mock is already set up to handle test-token authentication
 
     // Setup database mocks
     const mockInsert = jest.fn().mockReturnValue({
@@ -60,7 +70,7 @@ describe("Simple Working Example - Your Mock Pattern", () => {
     const request = new NextRequest("http://localhost:3000/api/polls", {
       method: "POST",
       headers: {
-        Authorization: "Bearer test-token",
+        "authorization": "Bearer test-token",
       },
       body: JSON.stringify({
         title: "Test Poll",
@@ -164,7 +174,7 @@ describe("Using Your Mock Pattern as Utility", () => {
     const request = new NextRequest("http://localhost:3000/api/polls", {
       method: "POST",
       headers: {
-        Authorization: "Bearer test-token",
+        "authorization": "Bearer test-token",
       },
       body: JSON.stringify({
         title: "Test Poll",

@@ -14,14 +14,19 @@ import {
 setupGlobalMocks();
 
 // Mock the Supabase server client
-jest.mock("@/lib/supabaseServerClient", () => {
-  const {
-    createMockSupabaseServerClient,
-  } = require("../../mocks/supabase-mocks");
-  return {
-    supabaseServerClient: createMockSupabaseServerClient(),
-  };
-});
+jest.mock("@/lib/supabaseServerClient", () => ({
+  supabaseServerClient: {
+    auth: {
+      getUser: jest.fn().mockImplementation((token) => {
+        if (token === "test-token") {
+          return Promise.resolve({ data: { user: mockUser }, error: null });
+        }
+        return Promise.resolve({ data: { user: null }, error: { message: "Invalid token" } });
+      }),
+    },
+    from: jest.fn(),
+  },
+}));
 
 // Mock audit logger
 jest.mock("@/lib/audit-logger", () => ({

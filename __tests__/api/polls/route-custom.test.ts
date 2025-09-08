@@ -2,21 +2,18 @@ import "@testing-library/jest-dom";
 import { POST, GET } from "@/app/api/polls/route";
 import { createMockRequest } from "../../utils/test-utils";
 
-// Mock the Supabase client
-jest.mock("@/lib/supabase", () => ({
-  supabaseAdmin: {
-    from: jest.fn(() => ({
-      insert: jest.fn(() => ({
-        select: jest.fn(() => ({
-          single: jest.fn(),
-        })),
-      })),
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          order: jest.fn(),
-        })),
-      })),
-    })),
+// Mock the Supabase server client
+jest.mock("@/lib/supabaseServerClient", () => ({
+  supabaseServerClient: {
+    auth: {
+      getUser: jest.fn().mockImplementation((token) => {
+        if (token === "test-token") {
+          return Promise.resolve({ data: { user: { id: "test-user-id" } }, error: null });
+        }
+        return Promise.resolve({ data: { user: null }, error: { message: "Invalid token" } });
+      }),
+    },
+    from: jest.fn(),
   },
 }));
 
@@ -35,21 +32,21 @@ describe("Poll Creation API - Custom Tests", () => {
     });
 
     // Mock successful database operations
-    const mockInsert = jest.fn();
-    const mockSelect = jest.fn();
+    const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+    const mockFrom = supabaseServerClient.from as jest.Mock;
     const mockSingle = jest.fn();
-    const mockFrom = jest.fn(() => ({
-      insert: mockInsert,
-      select: mockSelect,
-    }));
 
-    supabaseAdmin.from = mockFrom;
-
-    mockInsert.mockReturnValue({
-      select: mockSelect,
-    });
-    mockSelect.mockReturnValue({
-      single: mockSingle,
+    mockFrom.mockReturnValue({
+      insert: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          single: mockSingle,
+        }),
+      }),
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          order: jest.fn(),
+        }),
+      }),
     });
     mockSingle
       .mockResolvedValueOnce({
