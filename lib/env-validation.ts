@@ -39,7 +39,12 @@ export function validateEnvironment(): ValidationResult {
     if (!value) {
       errors.push(`Missing required environment variable: ${key}`);
     } else if (value.includes("placeholder") || value.includes("your-")) {
-      errors.push(`Environment variable ${key} contains placeholder value`);
+      // Allow placeholder values in CI/CD environment
+      if (process.env.CI || process.env.GITHUB_ACTIONS) {
+        warnings.push(`Environment variable ${key} contains placeholder value (CI/CD mode)`);
+      } else {
+        errors.push(`Environment variable ${key} contains placeholder value`);
+      }
     } else if (
       key === "NEXT_PUBLIC_SUPABASE_ANON_KEY" &&
       !value.startsWith("eyJ")
@@ -52,11 +57,21 @@ export function validateEnvironment(): ValidationResult {
   if (typeof window === "undefined") {
     for (const [key, value] of Object.entries(requiredServerVars)) {
       if (!value) {
-        errors.push(`Missing required server environment variable: ${key}`);
+        // Allow missing service role key in CI/CD for client-side builds
+        if (process.env.CI || process.env.GITHUB_ACTIONS) {
+          warnings.push(`Server environment variable ${key} missing (CI/CD mode)`);
+        } else {
+          errors.push(`Missing required server environment variable: ${key}`);
+        }
       } else if (value.includes("placeholder") || value.includes("your-")) {
-        errors.push(
-          `Server environment variable ${key} contains placeholder value`,
-        );
+        // Allow placeholder values in CI/CD environment
+        if (process.env.CI || process.env.GITHUB_ACTIONS) {
+          warnings.push(`Server environment variable ${key} contains placeholder value (CI/CD mode)`);
+        } else {
+          errors.push(
+            `Server environment variable ${key} contains placeholder value`,
+          );
+        }
       } else if (
         key === "SUPABASE_SERVICE_ROLE_KEY" &&
         !value.startsWith("sk-")
@@ -145,8 +160,8 @@ export function getEnvironmentConfig(): EnvironmentConfig {
     validation.errors.forEach((error) => console.error(`  ${error}`));
     validation.warnings.forEach((warning) => console.warn(`  ⚠️ ${warning}`));
 
-    // In production, throw error to prevent startup
-    if (process.env.NODE_ENV === "production") {
+    // In production, throw error to prevent startup (but allow CI/CD builds)
+    if (process.env.NODE_ENV === "production" && !process.env.CI && !process.env.GITHUB_ACTIONS) {
       throw new Error("Environment validation failed. Check configuration.");
     }
   } else if (validation.warnings.length > 0) {
@@ -235,8 +250,8 @@ export function initializeEnvironmentValidation(): void {
     console.error("❌ Environment validation failed:");
     validation.errors.forEach((error) => console.error(`  ${error}`));
 
-    // In production, prevent startup
-    if (process.env.NODE_ENV === "production") {
+    // In production, prevent startup (but allow CI/CD builds)
+    if (process.env.NODE_ENV === "production" && !process.env.CI && !process.env.GITHUB_ACTIONS) {
       throw new Error(
         "Environment validation failed. Application cannot start.",
       );

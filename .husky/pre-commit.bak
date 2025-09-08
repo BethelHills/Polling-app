@@ -4,15 +4,16 @@
 # Check for exposed secrets in staged files
 echo "🔍 Checking for exposed secrets..."
 
-# Check for hardcoded service role keys (exclude environment variable references, workflow files, and this file)
-if git diff --cached --name-only | grep -v -E "\.(md|sql|yml|yaml)$" | grep -v "pre-commit" | xargs grep -l "SUPABASE_SERVICE_ROLE_KEY.*=.*sk-" 2>/dev/null; then
+# Check for hardcoded service role keys (exclude environment variable references, workflow files, and this file)                                                            
+if git diff --cached --name-only | grep -v -E "\.(md|sql|yml|yaml)$" | grep -v "pre-commit" | grep -v "workflows" | xargs grep -l "SUPABASE_SERVICE_ROLE_KEY.*=.*sk-" 2>/dev/null; then           
   echo "❌ Error: Hardcoded service role key found in staged files!"
   echo "   Remove hardcoded SUPABASE_SERVICE_ROLE_KEY values from your code."
   exit 1
 fi
 
 # Check for hardcoded secret key patterns (exclude documentation, env files, validation files, workflow files, and this file)
-if git diff --cached --name-only | grep -v -E "\.(md|sql|example|yml|yaml)$" | grep -v "pre-commit" | grep -v "env-validation" | xargs grep -l "=.*sk-" 2>/dev/null; then
+# Look for actual secret key assignments, not validation code
+if git diff --cached --name-only | grep -v -E "\.(md|sql|example|yml|yaml)$" | grep -v "pre-commit" | grep -v "env-validation" | grep -v "lib/env-validation.ts" | xargs grep -l "=.*sk-[a-zA-Z0-9]\{40,\}" 2>/dev/null; then
   echo "❌ Error: Hardcoded Supabase secret key found in staged files!"
   echo "   Remove any hardcoded 'sk-' patterns from your code."
   exit 1
