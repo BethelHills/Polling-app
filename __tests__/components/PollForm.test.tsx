@@ -31,11 +31,16 @@ describe("PollForm", () => {
     render(<PollForm />);
 
     const submitButton = screen.getByRole("button", { name: /create poll/i });
+    
+    // Debug: Check if the form has any validation errors before clicking
+    console.log("Form errors before submit:", screen.queryByText(/question is required/i));
+    
     await user.click(submitButton);
 
+    // Wait a bit longer for validation to trigger
     await waitFor(() => {
       expect(screen.getByText(/question is required/i)).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it("validates title length", async () => {

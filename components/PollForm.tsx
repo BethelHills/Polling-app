@@ -76,7 +76,8 @@ export function PollForm() {
       description: "",
       options: [{ text: "" }, { text: "" }],
     },
-    mode: "onChange",
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
 
   const { fields, append, remove } = useFieldArray({

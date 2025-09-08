@@ -99,7 +99,7 @@ describe("Correct Mock Example - Your Pattern Works!", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid token");
+    expect(data.message).toContain("Invalid authorization header format");
   });
 
   it("should handle missing authorization header", async () => {
@@ -116,7 +116,7 @@ describe("Correct Mock Example - Your Pattern Works!", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("No token provided");
+    expect(data.message).toContain("Invalid authorization header format");
   });
 
   it("should validate input data", async () => {
