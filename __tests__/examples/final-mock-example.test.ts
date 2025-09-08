@@ -36,7 +36,7 @@ describe("Final Working Mock Example", () => {
     jest.clearAllMocks();
     
     // Re-setup the auth mock after clearing
-    mockSupabaseClient.auth.getUser.mockImplementation((token) => {
+    mockSupabaseClient.auth.getUser.mockImplementation((token: string) => {
       if (token === "test-token") {
         return Promise.resolve({ data: { user: { id: "test-user-id" } }, error: null });
       }
