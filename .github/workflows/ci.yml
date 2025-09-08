@@ -142,14 +142,15 @@ jobs:
 
       - name: Check for exposed secrets
         run: |
-          # Check for potential secret exposure in code
-          if grep -r "SUPABASE_SERVICE_ROLE_KEY" --exclude-dir=node_modules --exclude-dir=.git .; then
-            echo "❌ Service role key found in code - this should only be in environment variables!"
+          # Check for hardcoded secret keys (not environment variable references)
+          if grep -r "sk-[a-zA-Z0-9]\{40,\}" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
+            echo "❌ Hardcoded Supabase secret key found in code!"
             exit 1
           fi
 
-          if grep -r "sk-" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
-            echo "❌ Potential Supabase secret key found in code!"
+          # Check for hardcoded service role keys (not environment variable references)
+          if grep -r "SUPABASE_SERVICE_ROLE_KEY.*=.*sk-" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
+            echo "❌ Hardcoded service role key found in code!"
             exit 1
           fi
 
