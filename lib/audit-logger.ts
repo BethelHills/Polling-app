@@ -252,8 +252,8 @@ export class AuditLogger {
    */
   public async logSuspiciousActivity(
     request: NextRequest,
-    userId?: string,
     reason: string,
+    userId?: string,
     details?: Record<string, unknown>,
   ): Promise<void> {
     await this.logWithRequest(request, {
@@ -273,8 +273,8 @@ export class AuditLogger {
    */
   public async logSecurityViolation(
     request: NextRequest,
-    userId?: string,
     violation: string,
+    userId?: string,
     details?: Record<string, unknown>,
   ): Promise<void> {
     await this.logWithRequest(request, {
@@ -420,11 +420,11 @@ export const auditLog = {
    */
   suspiciousActivity: async (
     request: NextRequest,
-    userId?: string,
     reason: string,
+    userId?: string,
     details?: Record<string, unknown>,
   ) => {
-    await auditLogger.logSuspiciousActivity(request, userId, reason, details);
+    await auditLogger.logSuspiciousActivity(request, reason, userId, details);
   },
 
   /**
@@ -432,11 +432,11 @@ export const auditLog = {
    */
   securityViolation: async (
     request: NextRequest,
-    userId?: string,
     violation: string,
+    userId?: string,
     details?: Record<string, unknown>,
   ) => {
-    await auditLogger.logSecurityViolation(request, userId, violation, details);
+    await auditLogger.logSecurityViolation(request, violation, userId, details);
   },
 
   /**

@@ -260,7 +260,7 @@ export function handleApiError(
   console.error(`${context} error:`, error);
 
   // Handle known error types
-  if (error.code && Object.values(DB_ERROR_CODES).includes(error.code)) {
+  if (error.code && Object.values(DB_ERROR_CODES).includes(error.code as any)) {
     return handleDatabaseError(error);
   }
 

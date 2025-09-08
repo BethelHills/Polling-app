@@ -10,8 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { createPoll } from "@/lib/mock-actions";
-import { EnhancedFormField } from "@/components/ui/enhanced-form-field";
+// import { EnhancedFormField } from "@/components/ui/enhanced-form-field";
 import { OptionInput } from "@/components/ui/option-input";
 import { AlertMessage } from "@/components/ui/alert-message";
 import {
@@ -174,36 +178,63 @@ export function CreatePollForm() {
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Poll Title */}
-          <EnhancedFormField
-            label="Poll Title"
-            value={formState.title}
-            onChange={updateTitle}
-            placeholder="What's your poll about?"
-            error={fieldErrors.title}
-            success={!fieldErrors.title && formState.title.length >= 3}
-            required
-            maxLength={200}
-            showCharacterCount={true}
-            fieldName="title"
-            helpText="Choose a clear, engaging title that describes your poll"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-medium">
+              Poll Title <span className="text-red-500">*</span>
+            </Label>
+            <div className="relative">
+              <Input
+                id="title"
+                value={formState.title}
+                onChange={(e) => updateTitle(e.target.value)}
+                placeholder="What's your poll about?"
+                maxLength={200}
+                className={cn(
+                  "transition-all duration-200",
+                  fieldErrors.title && "border-red-500 focus-visible:ring-red-500",
+                  !fieldErrors.title && formState.title.length >= 3 && "border-green-500 focus-visible:ring-green-500",
+                )}
+              />
+              {formState.title.length > 0 && (
+                <div className="absolute -bottom-5 right-0 text-xs text-muted-foreground">
+                  {formState.title.length}/200
+                </div>
+              )}
+            </div>
+            {fieldErrors.title && (
+              <p className="text-sm text-red-600">{fieldErrors.title}</p>
+            )}
+          </div>
 
           {/* Poll Description */}
-          <EnhancedFormField
-            label="Description"
-            value={formState.description}
-            onChange={updateDescription}
-            type="textarea"
-            placeholder="Add more context about your poll..."
-            error={fieldErrors.description}
-            success={
-              !fieldErrors.description && formState.description.length > 0
-            }
-            maxLength={500}
-            showCharacterCount={true}
-            fieldName="description"
-            helpText="Optional: Provide additional context or instructions"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium">
+              Description
+            </Label>
+            <div className="relative">
+              <Textarea
+                id="description"
+                value={formState.description}
+                onChange={(e) => updateDescription(e.target.value)}
+                placeholder="Add more context about your poll..."
+                maxLength={500}
+                rows={3}
+                className={cn(
+                  "resize-none transition-all duration-200",
+                  fieldErrors.description && "border-red-500 focus-visible:ring-red-500",
+                  !fieldErrors.description && formState.description.length > 0 && "border-green-500 focus-visible:ring-green-500",
+                )}
+              />
+              {formState.description.length > 0 && (
+                <div className="absolute -bottom-5 right-0 text-xs text-muted-foreground">
+                  {formState.description.length}/500
+                </div>
+              )}
+            </div>
+            {fieldErrors.description && (
+              <p className="text-sm text-red-600">{fieldErrors.description}</p>
+            )}
+          </div>
 
           {/* Poll Options */}
           <div className="space-y-4">

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // 7. Log audit event (non-blocking)
     await ApiHelpers.safeAuditLog(
-      () => auditLog.pollCreated(request, user.id, poll.id, title),
+      () => auditLog.pollCreated(request, user.id, (poll as { id: string }).id, title),
       "poll creation"
     );
 
@@ -57,12 +57,12 @@ export async function POST(request: NextRequest) {
     return ApiHelpers.successResponse(
       "Poll created successfully!",
       {
-        pollId: poll.id,
+        pollId: (poll as { id: string }).id,
         poll: {
-          id: poll.id,
-          title: poll.title,
-          description: poll.description,
-          options: poll.options,
+          id: (poll as { id: string }).id,
+          title: (poll as { title: string }).title,
+          description: (poll as { description?: string }).description,
+          options: (poll as { options: unknown[] }).options,
         },
       },
       201

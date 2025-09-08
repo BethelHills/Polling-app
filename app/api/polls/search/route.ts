@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
     // Process the results
     const processedPolls = polls.map((poll) => {
       const totalVotes = poll.poll_options.reduce(
-        (sum: number, option: PollOption) => sum + option.votes,
+        (sum: number, option: { votes: number }) => sum + option.votes,
         0,
       );
       return {
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
         owner_id: poll.owner_id,
         total_votes: totalVotes,
         option_count: poll.poll_options.length,
-        options: poll.poll_options.map((option: PollOption) => ({
+        options: poll.poll_options.map((option: { id: string; text: string; votes: number }) => ({
           id: option.id,
           text: option.text,
           votes: option.votes,
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let suggestions: string[] = [];
+    let suggestions: Array<string | { type: string; id: string; text: string; category: string }> = [];
 
     if (type === "all" || type === "polls") {
       // Get poll title suggestions
@@ -234,14 +234,15 @@ export async function POST(request: NextRequest) {
           .limit(5);
 
       if (!pollError && pollSuggestions) {
-        suggestions = suggestions.concat(
-          pollSuggestions.map((poll) => ({
+        suggestions = [
+          ...suggestions,
+          ...pollSuggestions.map((poll) => ({
             type: "poll",
             id: poll.id,
             text: poll.title,
             category: "Polls",
           })),
-        );
+        ];
       }
     }
 

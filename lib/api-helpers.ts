@@ -6,11 +6,11 @@ const REQUEST_SIZE_LIMIT = 10000; // 10KB
 const MIN_TOKEN_LENGTH = 10;
 
 // Types for better type safety
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
-  errors?: any;
+  errors?: unknown;
 }
 
 interface AuthenticatedUser {
@@ -36,7 +36,7 @@ export class ApiHelpers {
   /**
    * Validates JSON payload size
    */
-  static validateJsonSize(body: any): NextResponse | null {
+  static validateJsonSize(body: unknown): NextResponse | null {
     if (JSON.stringify(body).length > REQUEST_SIZE_LIMIT) {
       return this.errorResponse("Request payload too large", 413);
     }
@@ -101,12 +101,12 @@ export class ApiHelpers {
   static errorResponse(
     message: string, 
     status: number, 
-    errors?: any
+    errors?: unknown
   ): NextResponse {
     const response: ApiResponse = {
       success: false,
       message,
-      ...(errors && { errors })
+      ...(errors ? { errors } : {})
     };
     
     return NextResponse.json(response, { status });
@@ -132,7 +132,7 @@ export class ApiHelpers {
   /**
    * Handles database errors with proper logging
    */
-  static handleDatabaseError(error: any, operation: string): NextResponse {
+  static handleDatabaseError(error: unknown, operation: string): NextResponse {
     console.error(`Database error during ${operation}:`, error);
     return this.errorResponse(`Failed to ${operation}`, 500);
   }
@@ -166,7 +166,7 @@ export class PollDatabase {
     },
     options: string[]
   ): Promise<{
-    poll: any;
+    poll: unknown;
     error: NextResponse | null;
   }> {
     try {
@@ -220,7 +220,7 @@ export class PollDatabase {
    * Fetches polls with their options and vote counts
    */
   static async fetchPollsWithVotes(): Promise<{
-    polls: any[];
+    polls: unknown[];
     error: NextResponse | null;
   }> {
     try {
@@ -241,10 +241,10 @@ export class PollDatabase {
       }
 
       // Calculate total votes for each poll
-      const pollsWithVotes = polls.map((poll) => ({
+      const pollsWithVotes = polls.map((poll: Record<string, unknown>) => ({
         ...poll,
-        total_votes: poll.options.reduce(
-          (sum: number, option: any) => sum + option.votes,
+        total_votes: (poll.options as Array<{ votes: number }>).reduce(
+          (sum: number, option) => sum + option.votes,
           0,
         ),
       }));

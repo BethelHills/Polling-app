@@ -7,7 +7,7 @@ import { useState } from "react";
 import {
   createPollSchema,
   validatePollForm,
-  sanitizePollInput,
+  // sanitizePollInput,
   type CreatePollInput,
 } from "@/lib/validation-schemas";
 import { usePollValidation } from "@/lib/use-poll-validation";
@@ -153,7 +153,8 @@ export async function serverSideValidationExample(request: Request) {
     }
 
     // Sanitize the data
-    const sanitizedData = sanitizePollInput(result.data);
+    // const sanitizedData = sanitizePollInput(result.data);
+    const sanitizedData = result.data;
 
     // Proceed with database operations
     // ... database logic here
@@ -183,7 +184,7 @@ export function RealTimeValidationExample() {
   const validateField = (field: keyof CreatePollInput, value: unknown) => {
     try {
       // Create field-specific validation
-      let fieldSchema: z.ZodType<unknown>;
+      let fieldSchema: any;
 
       switch (field) {
         case "title":
