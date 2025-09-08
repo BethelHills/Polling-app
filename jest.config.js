@@ -1,6 +1,11 @@
 module.exports = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/__tests__/utils/",
+    "/__tests__/mocks/",
+  ],
   transform: {
     "^.+\\.(ts|tsx)$": [
       "ts-jest",

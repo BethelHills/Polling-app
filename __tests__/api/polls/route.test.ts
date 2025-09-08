@@ -6,21 +6,18 @@ import {
   mockDbResponses,
 } from "../../utils/test-utils";
 
-// Mock the Supabase client
-jest.mock("@/lib/supabase", () => ({
-  supabaseAdmin: {
-    from: jest.fn(() => ({
-      insert: jest.fn(() => ({
-        select: jest.fn(() => ({
-          single: jest.fn(),
-        })),
-      })),
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          order: jest.fn(),
-        })),
-      })),
-    })),
+// Mock the Supabase server client
+jest.mock("@/lib/supabaseServerClient", () => ({
+  supabaseServerClient: {
+    auth: {
+      getUser: jest.fn().mockImplementation((token) => {
+        if (token === "test-token") {
+          return Promise.resolve({ data: { user: { id: "test-user-id" } }, error: null });
+        }
+        return Promise.resolve({ data: { user: null }, error: { message: "Invalid token" } });
+      }),
+    },
+    from: jest.fn(),
   },
 }));
 

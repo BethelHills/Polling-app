@@ -23,6 +23,7 @@ export function createMockRequest(
     method,
     headers: {
       "Content-Type": "application/json",
+      "Authorization": "Bearer test-token", // Add default auth header for tests
       ...headers,
     },
   };

@@ -46,7 +46,14 @@ export function createApiTestMocks(options: { authenticated?: boolean } = {}) {
 export function createMockSupabaseServerClient() {
   return {
     auth: {
-      getUser: jest.fn().mockResolvedValue({ data: { user: mockUser }, error: null }),
+      getUser: jest.fn().mockImplementation((token) => {
+        // Mock successful authentication for test-token
+        if (token === "test-token") {
+          return Promise.resolve({ data: { user: mockUser }, error: null });
+        }
+        // Mock failed authentication for other tokens
+        return Promise.resolve({ data: { user: null }, error: { message: "Invalid token" } });
+      }),
     },
     from: jest.fn(() => ({
       insert: jest.fn().mockReturnValue({
