@@ -38,7 +38,6 @@ describe("Poll Creation API", () => {
     // ✅ Unit Test 1: Happy Path
     it("should successfully create a poll with valid data", async () => {
       // Arrange
-      const { supabaseAdmin } = require("@/lib/supabase");
       const validPollData = {
         title: "What is your favorite programming language?",
         description: "Choose your preferred language for web development",
@@ -129,7 +128,6 @@ describe("Poll Creation API", () => {
     // ✅ Unit Test 3: Failure Case - Database Error
     it("should return error when Supabase poll creation fails", async () => {
       // Arrange
-      const { supabaseAdmin } = require("@/lib/supabase");
       const validPollData = {
         title: "What is your favorite framework?",
         description: "Choose your preferred framework",
@@ -138,22 +136,18 @@ describe("Poll Creation API", () => {
 
       const mockRequest = createMockRequest(validPollData);
 
-      const mockInsert = jest.fn();
-      const mockSelect = jest.fn();
+      const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+      const mockFrom = supabaseServerClient.from as jest.Mock;
       const mockSingle = jest.fn();
-      const mockFrom = jest.fn(() => ({
-        insert: mockInsert,
-        select: mockSelect,
-      }));
-
-      supabaseAdmin.from = mockFrom;
-
-      mockInsert.mockReturnValue({
-        select: mockSelect,
+      
+      mockFrom.mockReturnValue({
+        insert: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: mockSingle,
+          }),
+        }),
       });
-      mockSelect.mockReturnValue({
-        single: mockSingle,
-      });
+      
       mockSingle.mockResolvedValue({
         data: null,
         error: { message: "Database connection failed" },
@@ -172,7 +166,6 @@ describe("Poll Creation API", () => {
     // ✅ Unit Test 4: Failure Case - Options Creation Error
     it("should return error when poll options creation fails", async () => {
       // Arrange
-      const { supabaseAdmin } = require("@/lib/supabase");
       const validPollData = {
         title: "What is your favorite color?",
         description: "Choose your preferred color",
@@ -181,16 +174,17 @@ describe("Poll Creation API", () => {
 
       const mockRequest = createMockRequest(validPollData);
 
-      let callCount = 0;
-      const mockInsert = jest.fn();
-      const mockSelect = jest.fn();
+      const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+      const mockFrom = supabaseServerClient.from as jest.Mock;
       const mockSingle = jest.fn();
-      const mockFrom = jest.fn((table) => {
+      
+      let callCount = 0;
+      mockFrom.mockImplementation((table) => {
         callCount++;
         if (table === "polls") {
           return {
-            insert: mockInsert.mockReturnValue({
-              select: mockSelect.mockReturnValue({
+            insert: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
                 single: mockSingle.mockResolvedValue({
                   data: {
                     id: "poll-456",
@@ -206,16 +200,14 @@ describe("Poll Creation API", () => {
           };
         } else if (table === "poll_options") {
           return {
-            insert: mockInsert.mockReturnValue({
+            insert: jest.fn().mockReturnValue({
               data: null,
               error: { message: "Failed to insert options" },
             }),
           };
         }
-        return { insert: mockInsert, select: mockSelect };
+        return { insert: jest.fn(), select: jest.fn() };
       });
-
-      supabaseAdmin.from = mockFrom;
 
       // Act
       const response = await POST(mockRequest);
@@ -232,7 +224,6 @@ describe("Poll Creation API", () => {
     // ✅ Integration Test: Supabase Insert Called with Correct Payload
     it("should call Supabase insert with correct payload for poll and options", async () => {
       // Arrange
-      const { supabaseAdmin } = require("@/lib/supabase");
       const testPollData = {
         title: "Integration Test Poll",
         description: "Testing complete integration flow",
@@ -241,10 +232,13 @@ describe("Poll Creation API", () => {
 
       const mockRequest = createMockRequest(testPollData);
 
+      const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+      const mockFrom = supabaseServerClient.from as jest.Mock;
       const insertMock = jest.fn();
       const selectMock = jest.fn();
       const singleMock = jest.fn();
-      const fromMock = jest.fn((table) => {
+      
+      mockFrom.mockImplementation((table) => {
         if (table === "polls") {
           return {
             insert: insertMock.mockReturnValue({
@@ -273,8 +267,6 @@ describe("Poll Creation API", () => {
         return { insert: insertMock, select: selectMock };
       });
 
-      supabaseAdmin.from = fromMock;
-
       // Act
       const response = await POST(mockRequest);
       const responseData = await response.json();
@@ -289,6 +281,7 @@ describe("Poll Creation API", () => {
         title: testPollData.title,
         description: testPollData.description,
         is_active: true,
+        owner_id: "test-user-id",
       });
 
       // Assert - Supabase was called with correct options payload
@@ -314,10 +307,10 @@ describe("Poll Creation API", () => {
       ]);
 
       // Assert - Both database tables were accessed
-      expect(fromMock).toHaveBeenCalledWith("polls");
-      expect(fromMock).toHaveBeenCalledWith("poll_options");
+      expect(mockFrom).toHaveBeenCalledWith("polls");
+      expect(mockFrom).toHaveBeenCalledWith("poll_options");
 
-      // Assert - Insert was called twice (once for polls, once for options)
+      // Assert - Insert was called twice (polls and options, audit log is mocked)
       expect(insertMock).toHaveBeenCalledTimes(2);
     });
   });
@@ -325,16 +318,15 @@ describe("Poll Creation API", () => {
   describe("GET Endpoint Tests", () => {
     it("should successfully fetch all polls", async () => {
       // Arrange
-      const { supabaseAdmin } = require("@/lib/supabase");
-
+      const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+      const mockFrom = supabaseServerClient.from as jest.Mock;
       const mockSelect = jest.fn();
       const mockEq = jest.fn();
       const mockOrder = jest.fn();
-      const mockFrom = jest.fn(() => ({
-        select: mockSelect,
-      }));
 
-      supabaseAdmin.from = mockFrom;
+      mockFrom.mockReturnValue({
+        select: mockSelect,
+      });
 
       mockSelect.mockReturnValue({
         eq: mockEq,
@@ -386,16 +378,15 @@ describe("Poll Creation API", () => {
 
     it("should handle database errors when fetching polls", async () => {
       // Arrange
-      const { supabaseAdmin } = require("@/lib/supabase");
-
+      const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+      const mockFrom = supabaseServerClient.from as jest.Mock;
       const mockSelect = jest.fn();
       const mockEq = jest.fn();
       const mockOrder = jest.fn();
-      const mockFrom = jest.fn(() => ({
-        select: mockSelect,
-      }));
 
-      supabaseAdmin.from = mockFrom;
+      mockFrom.mockReturnValue({
+        select: mockSelect,
+      });
 
       mockSelect.mockReturnValue({
         eq: mockEq,

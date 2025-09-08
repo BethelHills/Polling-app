@@ -79,6 +79,35 @@ jest.mock("next/navigation", () => ({
 
 // Mock Next.js server actions will be handled in individual test files
 
+// Mock Supabase client to prevent multiple GoTrueClient instances
+jest.mock("@/lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getUser: jest.fn(),
+      signIn: jest.fn(),
+      signOut: jest.fn(),
+    },
+    from: jest.fn(),
+  },
+  supabaseAdmin: {
+    auth: {
+      getUser: jest.fn(),
+    },
+    from: jest.fn(),
+  },
+}));
+
+// Mock audit logger to prevent real audit log entries during tests
+jest.mock("@/lib/audit-logger", () => ({
+  auditLog: {
+    pollCreated: jest.fn().mockResolvedValue(undefined),
+    pollVoted: jest.fn().mockResolvedValue(undefined),
+    pollViewed: jest.fn().mockResolvedValue(undefined),
+    userAuthenticated: jest.fn().mockResolvedValue(undefined),
+    userUnauthorized: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
