@@ -2,15 +2,7 @@ import "@testing-library/jest-dom";
 import { POST, GET } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
 
-// Mock the Supabase server client properly
-jest.mock("@/lib/supabaseServerClient", () => ({
-  supabaseServerClient: {
-    auth: {
-      getUser: jest.fn(),
-    },
-    from: jest.fn(),
-  },
-}));
+// Use the global mock from jest.setup.js
 
 // Mock audit logger
 jest.mock("@/lib/audit-logger", () => ({
@@ -25,56 +17,37 @@ describe("/api/polls POST endpoint - Fixed Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Get the mocked client
+    // Get the mocked client from global mock
     const { supabaseServerClient } = require("@/lib/supabaseServerClient");
     mockSupabaseClient = supabaseServerClient;
 
-    // Setup successful authentication by default
-    mockSupabaseClient.auth.getUser.mockResolvedValue({
-      data: { user: { id: "user1" } },
-      error: null,
-    });
-
-    // Setup successful database operations
-    const mockInsert = jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        single: jest.fn().mockResolvedValue({
-          data: { id: "poll-123", title: "Test Poll" },
-          error: null,
-        }),
-      }),
-    });
-
-    const mockInsertOptions = jest.fn().mockResolvedValue({
-      data: [],
-      error: null,
-    });
-
-    mockSupabaseClient.from
-      .mockReturnValueOnce({ insert: mockInsert }) // For poll creation
-      .mockReturnValueOnce({ insert: mockInsertOptions }); // For options creation
+    // The global mock already handles authentication
+    // Just need to set up database operations for specific tests
   });
 
   it("should successfully create a poll with valid data", async () => {
-    const request = new NextRequest("http://localhost:3000/api/polls", {
+    const headers = new Headers();
+    headers.set("authorization", "Bearer valid-token-12345");
+    headers.set("content-type", "application/json");
+    
+    const request = {
       method: "POST",
-      headers: {
-        Authorization: "Bearer valid-token-12345",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      headers,
+      url: "http://localhost:3000/api/polls",
+      json: jest.fn().mockResolvedValue({
         title: "Test Poll",
         options: ["Option 1", "Option 2"],
       }),
-    });
+    } as any;
 
     const response = await POST(request);
     const data = await response.json();
 
+
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.message).toBe("Poll created successfully!");
-    expect(data.pollId).toBe("poll-123");
+    expect(data.pollId).toBe("test-poll-id");
     expect(mockSupabaseClient.auth.getUser).toHaveBeenCalledWith(
       "valid-token-12345",
     );
