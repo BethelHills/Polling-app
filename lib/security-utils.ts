@@ -44,7 +44,13 @@ export function sanitizeText(text: string, allowHtml: boolean = false): string {
 
   // Use DOMPurify for comprehensive sanitization
   const domPurify = createDOMPurify();
-  const sanitized = String(domPurify.sanitize(text));
+  let sanitized = String(domPurify.sanitize(text));
+  
+  // If allowHtml is false, strip all HTML tags
+  if (!allowHtml) {
+    // Remove all HTML tags
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
+  }
 
   // Additional custom sanitization for extra safety
   return (
@@ -449,11 +455,30 @@ export const DOMPurifyConfigs = {
  */
 export function sanitizeWithConfig(
   text: string,
-  // config: Record<string, unknown> = DOMPurifyConfigs.STRICT,
+  config: Record<string, unknown> = { ALLOWED_TAGS: [], ALLOWED_ATTR: [] },
 ): string {
   if (!text) return "";
   const domPurify = createDOMPurify();
-  return String(domPurify.sanitize(text));
+  
+  // For server-side, we'll do basic HTML stripping
+  let sanitized = text;
+  
+  // If config specifies no allowed tags, strip all HTML
+  if (config.ALLOWED_TAGS && Array.isArray(config.ALLOWED_TAGS) && config.ALLOWED_TAGS.length === 0) {
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
+  }
+  
+  // Additional sanitization for script content
+  sanitized = sanitized
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/alert\s*\([^)]*\)/gi, '')
+    .replace(/eval\s*\([^)]*\)/gi, '')
+    .replace(/document\./gi, '')
+    .replace(/window\./gi, '');
+  
+  return String(sanitized);
 }
 
 /**

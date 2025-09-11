@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { OptionInput } from "@/components/ui/option-input";
 
@@ -27,6 +27,11 @@ describe("OptionInput", () => {
 
     const input = screen.getByPlaceholderText(/option 1/i);
     await user.type(input, "Test Option");
+    
+    // Wait for all async operations to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
 
     expect(mockOnChange).toHaveBeenCalledWith("Test Option");
   });
@@ -161,7 +166,9 @@ describe("OptionInput", () => {
 
     const input = screen.getByPlaceholderText(/option 1/i);
     await user.click(input);
-    input.blur();
+    await act(async () => {
+      input.blur();
+    });
 
     await user.type(input, "Option 1");
 
