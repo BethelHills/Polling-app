@@ -71,7 +71,7 @@ export function usePollValidation(): UsePollValidationReturn {
     (
       field: keyof CreatePollInput,
       value: unknown,
-      allData?: Partial<CreatePollInput>,
+      // allData?: Partial<CreatePollInput>,
     ): string | null => {
       try {
         // Create field-specific validation

@@ -126,7 +126,7 @@ export function rateLimit(config: RateLimitConfig) {
   return async (req: NextRequest): Promise<NextResponse | null> => {
     const key = generateKey(req, config.keyGenerator?.(req));
     const now = Date.now();
-    const windowStart = now - config.windowMs;
+    // const windowStart = now - config.windowMs;
 
     // Get or create rate limit entry
     let entry = store[key];

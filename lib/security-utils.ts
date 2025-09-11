@@ -12,7 +12,7 @@ const createDOMPurify = () => {
     // Server-side: return a mock DOMPurify that just returns the input
     // This is safe because we're only using it for sanitization
     return {
-      sanitize: (html: string, config?: Record<string, unknown>) => html,
+      sanitize: (html: string) => html,
       version: "server-side",
     };
   }
@@ -489,7 +489,7 @@ export function getDOMPurifyInfo(): { version: string; isSupported: boolean } {
       version: domPurify.version || "unknown",
       isSupported: typeof domPurify !== "undefined",
     };
-  } catch (error) {
+  } catch {
     return {
       version: "unknown",
       isSupported: false,

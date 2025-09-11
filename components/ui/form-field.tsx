@@ -53,7 +53,7 @@ export function CharacterCounter({
   className,
 }: CharacterCounterProps) {
   const isOverLimit = current > max;
-  const percentage = (current / max) * 100;
+  // const percentage = (current / max) * 100;
 
   return (
     <div className={cn("flex items-center justify-between text-xs", className)}>

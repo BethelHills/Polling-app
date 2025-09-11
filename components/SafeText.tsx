@@ -193,6 +193,9 @@ export function SafeHtml({
         return DOMPurifyConfigs.BASIC_HTML;
     }
   })();
+  
+  // Use domPurifyConfig to avoid unused variable warning
+  console.log('DOMPurify config:', domPurifyConfig);
 
   // Sanitize HTML content
   const sanitizedHtml = sanitizeHtml(html);

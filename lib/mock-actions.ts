@@ -41,7 +41,7 @@ export async function createPoll(
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
+  // const description = formData.get("description") as string;
   const options = formData.getAll("options") as string[];
 
   if (!title || options.length < 2) {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServerClient } from "@/lib/supabaseServerClient";
-import { PollOption } from "@/lib/types";
 
 /**
  * GET /api/polls/search

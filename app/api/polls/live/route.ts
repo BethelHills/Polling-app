@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { revalidateTag } from "next/cache";
 
 // Modern Next.js 15 API route with enhanced features
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get request headers for analytics
     const headersList = await headers();
@@ -146,7 +145,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Handle preflight requests
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {

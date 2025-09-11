@@ -22,16 +22,17 @@ const createDOMPurify = () => {
 const domPurify = createDOMPurify();
 
 // Enhanced string validation with sanitization
-const sanitizedString = z
-  .string()
-  .min(1, "Text is required")
-  .max(500, "Text is too long")
-  .transform((val) => {
-    // Sanitize the string using DOMPurify
-    return domPurify
-      .sanitize(val)
-      .trim();
-  });
+// const sanitizedString = z
+//   .string()
+//   .min(1, "Text is required")
+//   .max(500, "Text is too long")
+//   .transform((val) => {
+//     // Sanitize the string using DOMPurify
+//     const sanitized = domPurify
+//       .sanitize(val)
+//       .trim();
+//     return sanitized;
+//   });
 
 // Base poll option validation with sanitization
 const pollOptionSchema = z

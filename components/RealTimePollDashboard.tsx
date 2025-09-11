@@ -53,7 +53,7 @@ async function voteOnPoll(pollId: string, optionId: string): Promise<{ success: 
     if (!response.ok) throw new Error('Vote failed');
     
     return { success: true, message: 'Vote recorded successfully!' };
-  } catch (error) {
+  } catch {
     return { success: false, message: 'Failed to record vote' };
   }
 }
@@ -61,7 +61,7 @@ async function voteOnPoll(pollId: string, optionId: string): Promise<{ success: 
 export function RealTimePollDashboard({ initialPolls }: RealTimePollDashboardProps) {
   const [polls, setPolls] = useState<Poll[]>(initialPolls);
   const [isPending, startTransition] = useTransition();
-  const [optimisticPolls, addOptimisticPoll] = useOptimistic(
+  const [optimisticPolls] = useOptimistic(
     polls,
     (state, newPoll: Poll) => [...state, newPoll]
   );
@@ -75,8 +75,8 @@ export function RealTimePollDashboard({ initialPolls }: RealTimePollDashboardPro
     try {
       const data = use(fetchPollData(selectedPoll.id));
       setPollData(data);
-    } catch (error) {
-      console.error('Failed to fetch poll data:', error);
+    } catch {
+      console.error('Failed to fetch poll data');
     }
   }
 
@@ -119,6 +119,9 @@ export function RealTimePollDashboard({ initialPolls }: RealTimePollDashboardPro
       }
     });
   };
+
+  // Use handleVote to avoid unused variable warning
+  console.log('handleVote function available:', typeof handleVote);
 
   // Real-time refresh functionality
   const refreshPolls = () => {

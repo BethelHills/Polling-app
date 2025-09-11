@@ -1,8 +1,8 @@
 "use client";
 
-import { forwardRef, useState, useEffect } from "react";
+import { forwardRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { CheckCircle, AlertCircle, X, Info, Sparkles, Zap } from "lucide-react";
+import { CheckCircle, AlertCircle, X, Info, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AlertMessageProps {
@@ -67,18 +67,7 @@ export const AlertMessage = forwardRef<HTMLDivElement, AlertMessageProps>(
       }
     };
 
-    // Auto-close functionality
-    useEffect(() => {
-      if (autoClose && !persistent && onDismiss) {
-        const timer = setTimeout(() => {
-          handleDismiss();
-        }, autoCloseDelay);
-
-        return () => clearTimeout(timer);
-      }
-    }, [autoClose, autoCloseDelay, persistent, onDismiss]);
-
-    const handleDismiss = () => {
+    const handleDismiss = useCallback(() => {
       if (showAnimation) {
         setIsAnimating(true);
         setTimeout(() => {
@@ -89,7 +78,18 @@ export const AlertMessage = forwardRef<HTMLDivElement, AlertMessageProps>(
         setIsVisible(false);
         onDismiss?.();
       }
-    };
+    }, [showAnimation, onDismiss]);
+
+    // Auto-close functionality
+    useEffect(() => {
+      if (autoClose && !persistent && onDismiss) {
+        const timer = setTimeout(() => {
+          handleDismiss();
+        }, autoCloseDelay);
+
+        return () => clearTimeout(timer);
+      }
+    }, [autoClose, autoCloseDelay, persistent, onDismiss, handleDismiss]);
 
     if (!isVisible) return null;
 

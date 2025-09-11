@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { RealTimePollDashboardServer } from "@/components/RealTimePollDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Zap, BookOpen, Code, Rocket } from "lucide-react";
+import { BookOpen, Code, Rocket } from "lucide-react";
 
 // Loading component with modern React 19 Suspense
 function DashboardLoading() {

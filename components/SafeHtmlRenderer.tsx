@@ -12,7 +12,7 @@ const createDOMPurify = () => {
     // Server-side: return a mock DOMPurify that just returns the input
     // This is safe because we're only using it for sanitization
     return {
-      sanitize: (html: string, config?: Record<string, unknown>) => html,
+      sanitize: (html: string) => html,
       version: "server-side",
     };
   }
@@ -23,7 +23,6 @@ const createDOMPurify = () => {
 interface SafeHtmlRendererProps {
   html: string;
   className?: string;
-  config?: Record<string, unknown>;
   fallback?: React.ReactNode;
 }
 
@@ -34,7 +33,6 @@ interface SafeHtmlRendererProps {
 export function SafeHtmlRenderer({
   html,
   className,
-  config,
   fallback = null,
 }: SafeHtmlRendererProps) {
   if (!html) return fallback;

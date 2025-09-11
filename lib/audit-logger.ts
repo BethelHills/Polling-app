@@ -101,7 +101,7 @@ export class AuditLogger {
    */
   public async log(entry: AuditLogEntry): Promise<void> {
     try {
-      const { data, error } = await this.supabase.from("audit_logs").insert([
+      const { error } = await this.supabase.from("audit_logs").insert([
         {
           user_id: entry.user_id || null,
           action: entry.action,

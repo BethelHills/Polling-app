@@ -66,7 +66,7 @@ export function PollForm() {
     register,
     control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
     reset,
   } = useForm<PollFormData>({
@@ -125,7 +125,7 @@ export function PollForm() {
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: Record<string, unknown>) => {
     // This will be called when form validation fails
     console.log("Form validation errors:", errors);
   };
