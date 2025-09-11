@@ -50,12 +50,6 @@ export function SafeHtmlRendererExample({ content }: { content: string }) {
     <SafeHtmlRenderer
       html={content}
       className="prose max-w-none"
-      config={{
-        ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br", "ul", "ol", "li"],
-        ALLOWED_ATTR: ["class"],
-        ALLOW_DATA_ATTR: false,
-        ALLOW_UNKNOWN_PROTOCOLS: false,
-      }}
       fallback={<p>No content available</p>}
     />
   );

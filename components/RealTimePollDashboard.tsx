@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RefreshCw, Users, TrendingUp, Clock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { voteOnPoll } from "@/lib/actions/poll-actions";
 
 // Types for the modern polling system
 interface PollOption {
@@ -39,24 +40,6 @@ async function fetchPollData(pollId: string): Promise<Poll> {
   return response.json();
 }
 
-// Server Action for optimistic updates
-async function voteOnPoll(pollId: string, optionId: string): Promise<{ success: boolean; message: string }> {
-  "use server";
-  
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/polls/${pollId}/vote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ optionId }),
-    });
-    
-    if (!response.ok) throw new Error('Vote failed');
-    
-    return { success: true, message: 'Vote recorded successfully!' };
-  } catch {
-    return { success: false, message: 'Failed to record vote' };
-  }
-}
 
 export function RealTimePollDashboard({ initialPolls }: RealTimePollDashboardProps) {
   const [polls, setPolls] = useState<Poll[]>(initialPolls);
@@ -111,7 +94,7 @@ export function RealTimePollDashboard({ initialPolls }: RealTimePollDashboardPro
       setPolls(updatedPolls);
 
       // Server action
-      const result = await voteOnPoll(pollId, optionId);
+      const result = await voteOnPoll({ pollId, optionId });
       
       if (!result.success) {
         // Revert optimistic update on failure

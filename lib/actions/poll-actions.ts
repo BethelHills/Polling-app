@@ -73,7 +73,7 @@ export async function voteOnPoll(input: VoteInput) {
       return {
         success: false,
         message: "Invalid input data",
-        errors: error.errors
+        errors: error.issues
       };
     }
     
@@ -150,7 +150,7 @@ export async function createPoll(input: CreatePollInput) {
       return {
         success: false,
         message: "Invalid input data",
-        errors: error.errors
+        errors: error.issues
       };
     }
     

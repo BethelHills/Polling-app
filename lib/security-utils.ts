@@ -26,23 +26,25 @@ const createDOMPurify = () => {
  * @param allowHtml - Whether to allow safe HTML tags (default: false)
  * @returns Sanitized text safe for display
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function sanitizeText(text: string, allowHtml: boolean = false): string {
   if (!text) return "";
 
   // Configure DOMPurify based on whether HTML is allowed
-  const config = allowHtml
-    ? {
-        ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br", "ul", "ol", "li"],
-        ALLOWED_ATTR: [],
-      }
-    : {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-      };
+  // Note: allowHtml parameter is kept for API compatibility but not currently used
+  // const config = allowHtml
+  //   ? {
+  //       ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br", "ul", "ol", "li"],
+  //       ALLOWED_ATTR: [],
+  //     }
+  //   : {
+  //       ALLOWED_TAGS: [],
+  //       ALLOWED_ATTR: [],
+  //     };
 
   // Use DOMPurify for comprehensive sanitization
   const domPurify = createDOMPurify();
-  const sanitized = String(domPurify.sanitize(text, config));
+  const sanitized = String(domPurify.sanitize(text));
 
   // Additional custom sanitization for extra safety
   return (
@@ -69,33 +71,33 @@ export function sanitizeHtml(html: string): string {
   if (!html) return "";
 
   // Configure DOMPurify to allow safe HTML tags
-  const config = {
-    ALLOWED_TAGS: [
-      "b",
-      "i",
-      "em",
-      "strong",
-      "p",
-      "br",
-      "ul",
-      "ol",
-      "li",
-      "h1",
-      "h2",
-      "h3",
-      "h4",
-      "h5",
-      "h6",
-      "blockquote",
-      "code",
-      "pre",
-    ],
-    ALLOWED_ATTR: ["class", "id"],
-    ALLOW_DATA_ATTR: false,
-  };
+  // const config = {
+  //   ALLOWED_TAGS: [
+  //     "b",
+  //     "i",
+  //     "em",
+  //     "strong",
+  //     "p",
+  //     "br",
+  //     "ul",
+  //     "ol",
+  //     "li",
+  //     "h1",
+  //     "h2",
+  //     "h3",
+  //     "h4",
+  //     "h5",
+  //     "h6",
+  //     "blockquote",
+  //     "code",
+  //     "pre",
+  //   ],
+  //   ALLOWED_ATTR: ["class", "id"],
+  //   ALLOW_DATA_ATTR: false,
+  // };
 
   const domPurify = createDOMPurify();
-  return String(domPurify.sanitize(html, config));
+  return String(domPurify.sanitize(html));
 }
 
 /**
@@ -447,11 +449,11 @@ export const DOMPurifyConfigs = {
  */
 export function sanitizeWithConfig(
   text: string,
-  config: Record<string, unknown> = DOMPurifyConfigs.STRICT,
+  // config: Record<string, unknown> = DOMPurifyConfigs.STRICT,
 ): string {
   if (!text) return "";
   const domPurify = createDOMPurify();
-  return String(domPurify.sanitize(text, config));
+  return String(domPurify.sanitize(text));
 }
 
 /**

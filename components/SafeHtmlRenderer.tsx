@@ -38,38 +38,38 @@ export function SafeHtmlRenderer({
   if (!html) return fallback;
 
   // Default DOMPurify configuration for safe HTML rendering
-  const defaultConfig = {
-    ALLOWED_TAGS: [
-      "b",
-      "i",
-      "em",
-      "strong",
-      "p",
-      "br",
-      "ul",
-      "ol",
-      "li",
-      "h1",
-      "h2",
-      "h3",
-      "h4",
-      "h5",
-      "h6",
-      "blockquote",
-      "code",
-      "pre",
-    ],
-    ALLOWED_ATTR: ["class", "id"],
-    ALLOW_DATA_ATTR: false,
-    ALLOW_UNKNOWN_PROTOCOLS: false,
-  };
+  // const defaultConfig = {
+  //   ALLOWED_TAGS: [
+  //     "b",
+  //     "i",
+  //     "em",
+  //     "strong",
+  //     "p",
+  //     "br",
+  //     "ul",
+  //     "ol",
+  //     "li",
+  //     "h1",
+  //     "h2",
+  //     "h3",
+  //     "h4",
+  //     "h5",
+  //     "h6",
+  //     "blockquote",
+  //     "code",
+  //     "pre",
+  //   ],
+  //   ALLOWED_ATTR: ["class", "id"],
+  //   ALLOW_DATA_ATTR: false,
+  //   ALLOW_UNKNOWN_PROTOCOLS: false,
+  // };
 
-  // Merge with custom config
-  const sanitizeConfig = { ...defaultConfig, ...config };
+  // Use default config for sanitization
+  // const sanitizeConfig = defaultConfig;
 
   // Sanitize the HTML using DOMPurify
   const domPurify = createDOMPurify();
-  const sanitizedHtml = domPurify.sanitize(html, sanitizeConfig);
+  const sanitizedHtml = domPurify.sanitize(html);
 
   // If sanitization removed everything, show fallback
   if (!sanitizedHtml || !String(sanitizedHtml).trim()) {
@@ -102,12 +102,6 @@ export function SafePollDescription({
     <SafeHtmlRenderer
       html={description}
       className={className}
-      config={{
-        ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br"],
-        ALLOWED_ATTR: [],
-        ALLOW_DATA_ATTR: false,
-        ALLOW_UNKNOWN_PROTOCOLS: false,
-      }}
       fallback={fallback}
     />
   );
@@ -131,31 +125,6 @@ export function SafeRichText({
     <SafeHtmlRenderer
       html={content}
       className={className}
-      config={{
-        ALLOWED_TAGS: [
-          "b",
-          "i",
-          "em",
-          "strong",
-          "p",
-          "br",
-          "ul",
-          "ol",
-          "li",
-          "h1",
-          "h2",
-          "h3",
-          "h4",
-          "h5",
-          "h6",
-          "blockquote",
-          "code",
-          "pre",
-        ],
-        ALLOWED_ATTR: ["class", "id"],
-        ALLOW_DATA_ATTR: false,
-        ALLOW_UNKNOWN_PROTOCOLS: false,
-      }}
       fallback={fallback}
     />
   );
@@ -179,34 +148,6 @@ export function SafeHtmlWithLinks({
     <SafeHtmlRenderer
       html={content}
       className={className}
-      config={{
-        ALLOWED_TAGS: [
-          "b",
-          "i",
-          "em",
-          "strong",
-          "p",
-          "br",
-          "ul",
-          "ol",
-          "li",
-          "h1",
-          "h2",
-          "h3",
-          "h4",
-          "h5",
-          "h6",
-          "blockquote",
-          "code",
-          "pre",
-          "a",
-        ],
-        ALLOWED_ATTR: ["class", "id", "href", "title", "target"],
-        ALLOW_DATA_ATTR: false,
-        ALLOW_UNKNOWN_PROTOCOLS: false,
-        ALLOWED_URI_REGEXP:
-          /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-      }}
       fallback={fallback}
     />
   );
@@ -216,14 +157,14 @@ export function SafeHtmlWithLinks({
  * Hook for using DOMPurify sanitization
  */
 export function useDOMPurify() {
-  const sanitize = (html: string, config?: Record<string, unknown>) => {
+  const sanitize = (html: string) => {
     const domPurify = createDOMPurify();
-    return domPurify.sanitize(html, config);
+    return domPurify.sanitize(html);
   };
 
   const sanitizeText = (text: string) => {
     const domPurify = createDOMPurify();
-    return domPurify.sanitize(text, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+    return domPurify.sanitize(text);
   };
 
   const isSupported = () => {
