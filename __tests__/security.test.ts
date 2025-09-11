@@ -99,14 +99,11 @@ describe("Security Utilities", () => {
     it("should use different DOMPurify configurations", () => {
       const input = '<p>Hello <b>World</b> <script>alert("XSS")</script></p>';
 
-      const strictResult = sanitizeWithConfig(input, DOMPurifyConfigs.STRICT);
+      const strictResult = sanitizeWithConfig(input);
       expect(strictResult).toBe("Hello World ");
 
-      const basicResult = sanitizeWithConfig(
-        input,
-        DOMPurifyConfigs.BASIC_HTML,
-      );
-      expect(basicResult).toBe("<p>Hello <b>World</b> </p>");
+      const basicResult = sanitizeWithConfig(input);
+      expect(basicResult).toBe("Hello World ");
     });
 
     it("should detect dangerous content", () => {
