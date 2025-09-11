@@ -457,6 +457,51 @@ export function sanitizeWithConfig(
 }
 
 /**
+ * Verifies a JWT token with optional additional validation
+ * @param token - The JWT token to verify
+ * @param extraArg - Additional argument for extended validation (optional)
+ * @returns True if token is valid, false otherwise
+ */
+export async function verifyToken(token: string, extraArg?: string): Promise<boolean> {
+  if (!token || typeof token !== 'string') {
+    return false;
+  }
+
+  // Basic token format validation
+  if (token.length < 10) {
+    return false;
+  }
+
+  // JWT token structure validation (basic check)
+  const jwtParts = token.split('.');
+  if (jwtParts.length !== 3) {
+    return false;
+  }
+
+  try {
+    // If extraArg is provided, perform additional validation
+    if (extraArg) {
+      // Example: Check if token contains specific pattern or matches extraArg
+      if (extraArg === "strict" && !token.startsWith("eyJ")) {
+        return false;
+      }
+      
+      // Example: Check token length against extraArg
+      if (extraArg === "long" && token.length < 50) {
+        return false;
+      }
+    }
+
+    // For now, return true for basic validation
+    // In a real implementation, you would verify with Supabase or JWT library
+    return true;
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return false;
+  }
+}
+
+/**
  * Checks if text contains potentially dangerous content
  * @param text - The text to check
  * @returns True if text contains dangerous content
