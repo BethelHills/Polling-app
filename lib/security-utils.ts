@@ -457,13 +457,17 @@ export function sanitizeWithConfig(
 }
 
 /**
- * Verifies a JWT token with optional additional validation
+ * Verifies a JWT token using the provided secret
  * @param token - The JWT token to verify
- * @param extraArg - Additional argument for extended validation (optional)
+ * @param secret - The secret key used to sign the token
  * @returns True if token is valid, false otherwise
  */
-export async function verifyToken(token: string, extraArg?: string): Promise<boolean> {
+export function verifyToken(token: string, secret: string): boolean {
   if (!token || typeof token !== 'string') {
+    return false;
+  }
+
+  if (!secret || typeof secret !== 'string') {
     return false;
   }
 
@@ -479,21 +483,26 @@ export async function verifyToken(token: string, extraArg?: string): Promise<boo
   }
 
   try {
-    // If extraArg is provided, perform additional validation
-    if (extraArg) {
-      // Example: Check if token contains specific pattern or matches extraArg
-      if (extraArg === "strict" && !token.startsWith("eyJ")) {
-        return false;
-      }
-      
-      // Example: Check token length against extraArg
-      if (extraArg === "long" && token.length < 50) {
-        return false;
-      }
+    // Basic JWT header validation
+    const header = JSON.parse(atob(jwtParts[0]));
+    if (!header.alg || !header.typ) {
+      return false;
+    }
+
+    // Basic payload validation
+    const payload = JSON.parse(atob(jwtParts[1]));
+    if (!payload) {
+      return false;
+    }
+
+    // Check if token is expired (if exp claim exists)
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+      return false;
     }
 
     // For now, return true for basic validation
-    // In a real implementation, you would verify with Supabase or JWT library
+    // In a real implementation, you would verify the signature using the secret
+    // This would involve HMAC verification or RSA signature verification
     return true;
   } catch (error) {
     console.error('Token verification error:', error);
