@@ -3,7 +3,7 @@
  * Shows the difference between Jest and Vitest approaches for Supabase mocking
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { POST } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
 
@@ -12,19 +12,19 @@ import { NextRequest } from "next/server";
 // ============================================================================
 
 // Mock the Supabase server client at the module level
-vi.mock('@/lib/supabaseServerClient', () => ({
+jest.mock('@/lib/supabaseServerClient', () => ({
   supabaseServerClient: {
     auth: {
-      getUser: vi.fn(),
+      getUser: jest.fn(),
     },
-    from: vi.fn(),
+    from: jest.fn(),
   },
 }));
 
 // Mock audit logger
-vi.mock('@/lib/audit-logger', () => ({
+jest.mock('@/lib/audit-logger', () => ({
   auditLog: {
-    pollCreated: vi.fn().mockResolvedValue(undefined),
+    pollCreated: jest.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -32,14 +32,14 @@ describe("Vitest Approach - Clean Supabase Mocking", () => {
   let mockSupabaseClient: any;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     
     // Get the mocked client
     const { supabaseServerClient } = await import("@/lib/supabaseServerClient");
     mockSupabaseClient = supabaseServerClient;
   });
 
-  it("should create poll successfully with clean vi.mock()", async () => {
+  it("should create poll successfully with clean jest.mock()", async () => {
     // Setup successful authentication
     mockSupabaseClient.auth.getUser.mockResolvedValue({
       data: { user: { id: "test-user-id", email: "test@example.com" } },
@@ -50,9 +50,9 @@ describe("Vitest Approach - Clean Supabase Mocking", () => {
     mockSupabaseClient.from.mockImplementation((table: string) => {
       if (table === "polls") {
         return {
-          insert: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
                 data: { id: "test-poll-id", title: "Test Poll" },
                 error: null
               })
@@ -62,7 +62,7 @@ describe("Vitest Approach - Clean Supabase Mocking", () => {
       }
       if (table === "poll_options") {
         return {
-          insert: vi.fn().mockResolvedValue({
+          insert: jest.fn().mockResolvedValue({
             data: [],
             error: null
           })
@@ -146,7 +146,7 @@ describe("Jest vs Vitest Comparison Summary", () => {
     const vitestAdvantages = [
       "✅ Faster execution and hot reload",
       "✅ Better ESM support",
-      "✅ Cleaner mock setup with vi.mock()",
+      "✅ Cleaner mock setup with jest.mock()",
       "✅ Better Vite integration",
       "✅ Modern JavaScript features",
       "✅ Smaller bundle size"
@@ -199,10 +199,10 @@ describe("Migration Example - From Jest to Vitest", () => {
     // VITEST VERSION (current):
     /*
     // 1. Mock at the top of test file
-    vi.mock('@/lib/supabaseServerClient', () => ({
+    jest.mock('@/lib/supabaseServerClient', () => ({
       supabaseServerClient: {
-        auth: { getUser: vi.fn() },
-        from: vi.fn(),
+        auth: { getUser: jest.fn() },
+        from: jest.fn(),
       },
     }));
 
