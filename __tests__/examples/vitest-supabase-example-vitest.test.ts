@@ -20,7 +20,7 @@ jest.mock('@/lib/supabaseServerClient', () => ({
 // Mock audit logger
 jest.mock('@/lib/audit-logger', () => ({
   auditLog: {
-    pollCreated: jest.fn().mockResolvedValue(undefined),
+    pollCreated: (jest.fn() as any).mockResolvedValue(undefined),
   },
 }));
 
@@ -49,7 +49,7 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({
+                single: (jest.fn() as any).mockResolvedValue({
                   data: { id: "test-poll-id", title: "Test Poll" },
                   error: null
                 })
@@ -59,7 +59,7 @@ describe("Vitest Supabase Mocking Example", () => {
         }
         if (table === "poll_options") {
           return {
-            insert: jest.fn().mockResolvedValue({
+            insert: (jest.fn() as any).mockResolvedValue({
               data: [],
               error: null
             })
@@ -101,7 +101,7 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({
+                single: (jest.fn() as any).mockResolvedValue({
                   data: { id: "custom-poll-id", title: "Custom Poll" },
                   error: null
                 })
@@ -111,7 +111,7 @@ describe("Vitest Supabase Mocking Example", () => {
         }
         if (table === "poll_options") {
           return {
-            insert: jest.fn().mockResolvedValue({
+            insert: (jest.fn() as any).mockResolvedValue({
               data: [],
               error: null
             })
@@ -203,7 +203,7 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({
+                single: (jest.fn() as any).mockResolvedValue({
                   data: null,
                   error: { message: "Database connection failed" }
                 })
@@ -243,7 +243,7 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             select: jest.fn().mockReturnValue({
               eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({
+                order: (jest.fn() as any).mockResolvedValue({
                   data: [
                     {
                       id: "poll-1",
@@ -301,7 +301,7 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({
+                single: (jest.fn() as any).mockResolvedValue({
                   data: { id: "integration-poll-id", title: "Integration Test Poll" },
                   error: null
                 })
@@ -311,7 +311,7 @@ describe("Vitest Supabase Mocking Example", () => {
         }
         if (table === "poll_options") {
           return {
-            insert: jest.fn().mockResolvedValue({
+            insert: (jest.fn() as any).mockResolvedValue({
               data: [],
               error: null
             })
