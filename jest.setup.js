@@ -97,44 +97,17 @@ jest.mock("@/lib/supabase", () => ({
   },
 }));
 
-// Mock Supabase server client to prevent real client creation
-// Note: Individual test files should set up their own mocks as needed
+// Import the auth mock helper
+const { authMockHelper } = require("./__tests__/utils/auth-mock-helper");
+
+// Mock Supabase server client with standardized authentication
 jest.mock("@/lib/supabaseServerClient", () => ({
-  supabaseServerClient: {
-    auth: {
-      getUser: jest.fn().mockImplementation((token) => {
-        // Accept any token that's longer than 10 characters
-        if (token && token.length >= 10) {
-          return Promise.resolve({
-            data: { user: { id: "test-user-id" } },
-            error: null,
-          });
-        }
-        return Promise.resolve({
-          data: { user: null },
-          error: { message: "Invalid token" },
-        });
-      }),
-    },
-    from: jest.fn().mockReturnValue({
-      insert: jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: { id: "test-poll-id", title: "Test Poll" },
-            error: null,
-          }),
-        }),
-      }),
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({
-            data: [],
-            error: null,
-          }),
-        }),
-      }),
-    }),
-  },
+  supabaseServerClient: authMockHelper.createSupabaseMock({
+    authenticated: true,
+    pollData: { id: "test-poll-id", title: "Test Poll" },
+    pollOptionsData: [],
+    pollsListData: []
+  })
 }));
 
 // Mock audit logger to prevent real audit log entries during tests

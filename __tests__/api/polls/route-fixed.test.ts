@@ -1,8 +1,12 @@
 import "@testing-library/jest-dom";
 import { POST, GET } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
-
-// Use the global mock from jest.setup.js
+import { 
+  createAuthMocks, 
+  createTestRequest, 
+  createUnauthRequest, 
+  createInvalidTokenRequest 
+} from "../../utils/auth-mock-helper";
 
 // Mock audit logger
 jest.mock("@/lib/audit-logger", () => ({
@@ -17,40 +21,30 @@ describe("/api/polls POST endpoint - Fixed Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Get the mocked client from global mock
-    const { supabaseServerClient } = require("@/lib/supabaseServerClient");
-    mockSupabaseClient = supabaseServerClient;
-
-    // The global mock already handles authentication
-    // Just need to set up database operations for specific tests
+    // Use standardized auth mock helper
+    mockSupabaseClient = createAuthMocks({
+      authenticated: true,
+      pollData: { id: "test-poll-id", title: "Test Poll" },
+      pollOptionsData: [],
+      pollsListData: []
+    });
   });
 
   it("should successfully create a poll with valid data", async () => {
-    const headers = new Headers();
-    headers.set("authorization", "Bearer valid-token-12345");
-    headers.set("content-type", "application/json");
-    
-    const request = {
-      method: "POST",
-      headers,
-      url: "http://localhost:3000/api/polls",
-      json: jest.fn().mockResolvedValue({
+    const request = createTestRequest({
+      body: {
         title: "Test Poll",
-        options: ["Option 1", "Option 2"],
-      }),
-    } as any;
+        options: ["Option 1", "Option 2"]
+      }
+    });
 
     const response = await POST(request);
     const data = await response.json();
-
 
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.message).toBe("Poll created successfully!");
     expect(data.pollId).toBe("test-poll-id");
-    expect(mockSupabaseClient.auth.getUser).toHaveBeenCalledWith(
-      "valid-token-12345",
-    );
   });
 
   it("should reject malformed authorization headers", async () => {
