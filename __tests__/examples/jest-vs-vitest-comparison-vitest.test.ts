@@ -77,19 +77,19 @@ describe("Vitest Approach - Clean Supabase Mocking", () => {
     });
 
     // Setup successful poll creation
-    mockSupabaseClient.from.mockImplementation((table: string) => {
+    mockSupabaseClient.from = (jest.fn() as any).mockImplementation((table: string) => {
       if (table === "polls") {
         return {
           insert: jest.fn().mockReturnValue({
             select: jest.fn().mockReturnValue({
-              single: (jest.fn() as any).mockResolvedValue(mockPollResponse)
+              single: (jest.fn() as any).mockResolvedValue(mockPollResponse as any)
             })
           })
         };
       }
       if (table === "poll_options") {
         return {
-          insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
+          insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse as any)
         };
       }
       return {};

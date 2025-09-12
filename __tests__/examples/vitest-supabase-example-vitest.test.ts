@@ -135,19 +135,19 @@ describe("Vitest Supabase Mocking Example", () => {
       });
 
       // Setup successful poll creation
-      mockSupabaseClient.from.mockImplementation((table: string) => {
+      mockSupabaseClient.from = (jest.fn() as any).mockImplementation((table: string) => {
         if (table === "polls") {
-          return {
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                single: (jest.fn() as any).mockResolvedValue(mockPollResponse)
-              })
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: (jest.fn() as any).mockResolvedValue(mockPollResponse as any)
             })
-          };
+          })
+        };
         }
         if (table === "poll_options") {
           return {
-            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
+            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse as any)
           };
         }
         return {};
@@ -181,19 +181,19 @@ describe("Vitest Supabase Mocking Example", () => {
       });
 
       // Setup custom poll creation
-      mockSupabaseClient.from.mockImplementation((table: string) => {
+      mockSupabaseClient.from = (jest.fn() as any).mockImplementation((table: string) => {
         if (table === "polls") {
-          return {
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                single: (jest.fn() as any).mockResolvedValue(mockCustomPollResponse)
-              })
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: (jest.fn() as any).mockResolvedValue(mockCustomPollResponse as any)
             })
-          };
+          })
+        };
         }
         if (table === "poll_options") {
           return {
-            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
+            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse as any)
           };
         }
         return {};
@@ -277,7 +277,7 @@ describe("Vitest Supabase Mocking Example", () => {
       });
 
       // Setup database error
-      mockSupabaseClient.from.mockImplementation((table: string) => {
+      mockSupabaseClient.from = (jest.fn() as any).mockImplementation((table: string) => {
         if (table === "polls") {
           return {
             insert: jest.fn().mockReturnValue({
@@ -285,7 +285,7 @@ describe("Vitest Supabase Mocking Example", () => {
                 single: (jest.fn() as any).mockResolvedValue({
                   data: null,
                   error: { message: "Database connection failed" }
-                })
+                } as any)
               })
             })
           };
@@ -317,7 +317,7 @@ describe("Vitest Supabase Mocking Example", () => {
   describe("GET /api/polls - Success Scenarios", () => {
     it("should fetch polls successfully", async () => {
       // Setup successful polls fetch
-      mockSupabaseClient.from.mockImplementation((table: string) => {
+      mockSupabaseClient.from = (jest.fn() as any).mockImplementation((table: string) => {
         if (table === "polls") {
           return {
             select: jest.fn().mockReturnValue({
@@ -348,7 +348,7 @@ describe("Vitest Supabase Mocking Example", () => {
                     }
                   ],
                   error: null
-                })
+                } as any)
               })
             })
           };
@@ -375,19 +375,19 @@ describe("Vitest Supabase Mocking Example", () => {
       });
 
       // Setup successful poll creation
-      mockSupabaseClient.from.mockImplementation((table: string) => {
+      mockSupabaseClient.from = (jest.fn() as any).mockImplementation((table: string) => {
         if (table === "polls") {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: (jest.fn() as any).mockResolvedValue(mockIntegrationPollResponse)
+                single: (jest.fn() as any).mockResolvedValue(mockIntegrationPollResponse as any)
               })
             })
           };
         }
         if (table === "poll_options") {
           return {
-            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
+            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse as any)
           };
         }
         return {};
