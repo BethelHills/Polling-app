@@ -1,33 +1,39 @@
+#!/bin/bash
 # Check for exposed secrets in staged files
 echo "🔍 Checking for exposed secrets..."
 
-# Check for hardcoded service role keys (exclude environment variable references, workflow files, and this file)                                                            
-if git diff --cached --name-only | grep -v -E "\.(md|sql|yml|yaml)$" | grep -v "pre-commit" | grep -v "workflows" | grep -v "\.husky/" | xargs grep -l "SUPABASE_SERVICE_ROLE_KEY.*=.*sk-" 2>/dev/null; then           
-  echo "❌ Error: Hardcoded service role key found in staged files!"
-  echo "   Remove hardcoded SUPABASE_SERVICE_ROLE_KEY values from your code."
-  exit 1
-fi
+# Get list of files to check (exclude documentation, workflow files, and husky files)
+FILES_TO_CHECK=$(git diff --cached --name-only | grep -v -E "\.(md|sql|yml|yaml)$" | grep -v "pre-commit" | grep -v "workflows" | grep -v "\.husky/")
 
-# Check for hardcoded secret key patterns (exclude documentation, env files, validation files, workflow files, and this file)
-# Look for actual secret key assignments, not validation code
-if git diff --cached --name-only | grep -v -E "\.(md|sql|example|yml|yaml)$" | grep -v "pre-commit" | grep -v "env-validation" | grep -v "lib/env-validation.ts" | grep -v "\.husky/" | xargs grep -l "=.*sk-[a-zA-Z0-9]\{40,\}" 2>/dev/null; then
-  echo "❌ Error: Hardcoded Supabase secret key found in staged files!"
-  echo "   Remove any hardcoded 'sk-' patterns from your code."
-  exit 1
-fi
+# Only run checks if there are files to check
+if [ -n "$FILES_TO_CHECK" ]; then
+  # Check for hardcoded service role keys
+  if echo "$FILES_TO_CHECK" | xargs grep -l "SUPABASE_SERVICE_ROLE_KEY.*=.*sk-" 2>/dev/null; then
+    echo "❌ Error: Hardcoded service role key found in staged files!"
+    echo "   Remove hardcoded SUPABASE_SERVICE_ROLE_KEY values from your code."
+    exit 1
+  fi
 
-# Check for NEXT_PUBLIC_ prefix on sensitive variables (exclude documentation files, workflow files, and this file)
-if git diff --cached --name-only | grep -v -E "\.(md|sql|yml|yaml)$" | grep -v "pre-commit" | grep -v "\.husky/" | xargs grep -l "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY\|NEXT_PUBLIC_SUPABASE_SECRET_KEY" 2>/dev/null; then
-  echo "❌ Error: Sensitive variables with NEXT_PUBLIC_ prefix found!"
-  echo "   Never use NEXT_PUBLIC_ prefix for service role keys."
-  exit 1
-fi
+  # Check for hardcoded secret key patterns
+  if echo "$FILES_TO_CHECK" | xargs grep -l "=.*sk-[a-zA-Z0-9]\{40,\}" 2>/dev/null; then
+    echo "❌ Error: Hardcoded Supabase secret key found in staged files!"
+    echo "   Remove any hardcoded 'sk-' patterns from your code."
+    exit 1
+  fi
 
-# Check for hardcoded URLs with keys (exclude documentation files, workflow files, and this file)
-if git diff --cached --name-only | grep -v -E "\.(md|sql|example|yml|yaml)$" | grep -v "pre-commit" | grep -v "\.husky/" | xargs grep -l "supabase\.co.*sk-" 2>/dev/null; then
-  echo "❌ Error: Hardcoded Supabase URL with secret key found!"
-  echo "   Use environment variables instead of hardcoding keys."
-  exit 1
+  # Check for NEXT_PUBLIC_ prefix on sensitive variables
+  if echo "$FILES_TO_CHECK" | xargs grep -l "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY\|NEXT_PUBLIC_SUPABASE_SECRET_KEY" 2>/dev/null; then
+    echo "❌ Error: Sensitive variables with NEXT_PUBLIC_ prefix found!"
+    echo "   Never use NEXT_PUBLIC_ prefix for service role keys."
+    exit 1
+  fi
+
+  # Check for hardcoded URLs with keys
+  if echo "$FILES_TO_CHECK" | xargs grep -l "supabase\.co.*sk-" 2>/dev/null; then
+    echo "❌ Error: Hardcoded Supabase URL with secret key found!"
+    echo "   Use environment variables instead of hardcoding keys."
+    exit 1
+  fi
 fi
 
 echo "✅ No exposed secrets found. Proceeding with commit."
