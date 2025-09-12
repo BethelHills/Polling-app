@@ -59,7 +59,7 @@ export function VotingComponent({ pollId }: { pollId: string }) {
       if (result.success && result.data) {
         setSuccess('Vote submitted successfully!');
         // Update poll with new results
-        setPoll(prev => ({
+        setPoll((prev: any) => ({
           ...prev,
           options: result.data!.poll.results.map(option => ({
             ...option,

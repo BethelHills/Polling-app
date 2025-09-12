@@ -131,7 +131,7 @@ describe("/api/polls - Standardized Authentication Tests", () => {
     it("should successfully fetch all polls", async () => {
       const request = createTestRequest({ method: "GET" });
 
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -155,7 +155,7 @@ describe("/api/polls - Standardized Authentication Tests", () => {
 
       const request = createTestRequest({ method: "GET" });
 
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(500);

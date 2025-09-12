@@ -298,7 +298,7 @@ describe("/api/polls - Working Authentication Tests", () => {
         url: "http://localhost:3000/api/polls"
       } as any;
 
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -329,7 +329,7 @@ describe("/api/polls - Working Authentication Tests", () => {
         url: "http://localhost:3000/api/polls"
       } as any;
 
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(500);
