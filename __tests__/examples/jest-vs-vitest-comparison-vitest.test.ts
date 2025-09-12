@@ -4,8 +4,38 @@
  */
 
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import type { PostgrestSingleResponse, PostgrestResponse } from '@supabase/supabase-js';
 import { POST } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
+
+// Type definitions for mock responses
+type Poll = {
+  id: string;
+  title: string;
+};
+
+type PollOption = {
+  id: string;
+  text: string;
+  votes: number;
+};
+
+// Mock response data
+const mockPollResponse: PostgrestSingleResponse<Poll> = {
+  data: { id: "test-poll-id", title: "Test Poll" },
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
+
+const mockPollOptionsResponse: PostgrestResponse<PollOption[]> = {
+  data: [],
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
 
 // ============================================================================
 // VITEST APPROACH (CLEAN)
@@ -52,20 +82,14 @@ describe("Vitest Approach - Clean Supabase Mocking", () => {
         return {
           insert: jest.fn().mockReturnValue({
             select: jest.fn().mockReturnValue({
-              single: (jest.fn() as any).mockResolvedValue({
-                data: { id: "test-poll-id", title: "Test Poll" },
-                error: null
-              })
+              single: (jest.fn() as any).mockResolvedValue(mockPollResponse)
             })
           })
         };
       }
       if (table === "poll_options") {
         return {
-          insert: (jest.fn() as any).mockResolvedValue({
-            data: [],
-            error: null
-          })
+          insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
         };
       }
       return {};

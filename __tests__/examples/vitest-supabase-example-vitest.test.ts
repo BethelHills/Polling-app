@@ -4,8 +4,99 @@
  */
 
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import type { PostgrestSingleResponse, PostgrestResponse } from '@supabase/supabase-js';
 import { POST, GET } from "@/app/api/polls/route";
 import { NextRequest } from "next/server";
+
+// Type definitions for mock responses
+type Poll = {
+  id: string;
+  title: string;
+  is_active: boolean;
+  created_at: string;
+  total_votes: number;
+  options: {
+    id: string;
+    votes: number;
+  }[];
+};
+
+type PollOption = {
+  id: string;
+  text: string;
+  votes: number;
+};
+
+// Mock response data
+const mockPollResponse: PostgrestSingleResponse<Poll> = {
+  data: { 
+    id: "test-poll-id", 
+    title: "Test Poll",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    total_votes: 0,
+    options: []
+  },
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
+
+const mockPollOptionsResponse: PostgrestResponse<PollOption[]> = {
+  data: [],
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
+
+const mockPollsListResponse = {
+  data: [
+    {
+      id: "poll-1",
+      title: "Sample Poll 1",
+      is_active: true,
+      created_at: "2024-01-01T00:00:00Z",
+      total_votes: 10,
+      options: [{ id: "opt-1", votes: 5 }, { id: "opt-2", votes: 5 }]
+    }
+  ],
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
+
+const mockCustomPollResponse: PostgrestSingleResponse<Poll> = {
+  data: { 
+    id: "custom-poll-id", 
+    title: "Custom Poll",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    total_votes: 0,
+    options: []
+  },
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
+
+const mockIntegrationPollResponse: PostgrestSingleResponse<Poll> = {
+  data: { 
+    id: "integration-poll-id", 
+    title: "Integration Test Poll",
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    total_votes: 0,
+    options: []
+  },
+  error: null,
+  count: null,
+  status: 200,
+  statusText: "OK"
+};
 
 // Mock the Supabase client at the module level
 jest.mock('@/lib/supabaseServerClient', () => ({
@@ -49,20 +140,14 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: (jest.fn() as any).mockResolvedValue({
-                  data: { id: "test-poll-id", title: "Test Poll" },
-                  error: null
-                })
+                single: (jest.fn() as any).mockResolvedValue(mockPollResponse)
               })
             })
           };
         }
         if (table === "poll_options") {
           return {
-            insert: (jest.fn() as any).mockResolvedValue({
-              data: [],
-              error: null
-            })
+            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
           };
         }
         return {};
@@ -101,20 +186,14 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: (jest.fn() as any).mockResolvedValue({
-                  data: { id: "custom-poll-id", title: "Custom Poll" },
-                  error: null
-                })
+                single: (jest.fn() as any).mockResolvedValue(mockCustomPollResponse)
               })
             })
           };
         }
         if (table === "poll_options") {
           return {
-            insert: (jest.fn() as any).mockResolvedValue({
-              data: [],
-              error: null
-            })
+            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
           };
         }
         return {};
@@ -301,20 +380,14 @@ describe("Vitest Supabase Mocking Example", () => {
           return {
             insert: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
-                single: (jest.fn() as any).mockResolvedValue({
-                  data: { id: "integration-poll-id", title: "Integration Test Poll" },
-                  error: null
-                })
+                single: (jest.fn() as any).mockResolvedValue(mockIntegrationPollResponse)
               })
             })
           };
         }
         if (table === "poll_options") {
           return {
-            insert: (jest.fn() as any).mockResolvedValue({
-              data: [],
-              error: null
-            })
+            insert: (jest.fn() as any).mockResolvedValue(mockPollOptionsResponse)
           };
         }
         return {};
