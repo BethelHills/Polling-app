@@ -5,7 +5,7 @@ global.Request = class MockRequest {
   constructor(input, init = {}) {
     this.url = typeof input === "string" ? input : input.url;
     this.method = init.method || "GET";
-    this.headers = new Map(Object.entries(init.headers || {}));
+    this.headers = new Headers(init.headers || {});
     this.body = init.body;
   }
 
@@ -32,9 +32,25 @@ global.Headers = class MockHeaders extends Map {
     super();
     if (typeof init === "object") {
       Object.entries(init).forEach(([key, value]) => {
-        this.set(key, value);
+        this.set(key.toLowerCase(), value);
       });
     }
+  }
+
+  get(name) {
+    return super.get(name.toLowerCase());
+  }
+
+  has(name) {
+    return super.has(name.toLowerCase());
+  }
+
+  set(name, value) {
+    return super.set(name.toLowerCase(), value);
+  }
+
+  delete(name) {
+    return super.delete(name.toLowerCase());
   }
 };
 
@@ -100,15 +116,36 @@ jest.mock("@/lib/supabase", () => ({
 // Import the auth mock helper
 const { authMockHelper } = require("./__tests__/utils/auth-mock-helper");
 
-// Mock Supabase server client with standardized authentication
+// Mock Supabase server client with configurable authentication
+let mockAuthConfig = { authenticated: true };
+const mockSupabaseClient = authMockHelper.createSupabaseMock({
+  authenticated: true,
+  pollData: { id: "test-poll-id", title: "Test Poll" },
+  pollOptionsData: [],
+  pollsListData: []
+});
+
 jest.mock("@/lib/supabaseServerClient", () => ({
-  supabaseServerClient: authMockHelper.createSupabaseMock({
-    authenticated: true,
-    pollData: { id: "test-poll-id", title: "Test Poll" },
-    pollOptionsData: [],
-    pollsListData: []
-  })
+  supabaseServerClient: mockSupabaseClient
 }));
+
+// Export function to configure auth for specific tests
+global.setMockAuth = (config) => {
+  mockAuthConfig = config;
+  // Update the mock implementation
+  Object.assign(mockSupabaseClient.auth.getUser, jest.fn().mockImplementation((token) => {
+    if (!config.authenticated || (token && token.length < 10)) {
+      return Promise.resolve({
+        data: { user: null },
+        error: { message: "Invalid token" }
+      });
+    }
+    return Promise.resolve({
+      data: { user: { id: "test-user-id", email: "test@example.com" } },
+      error: null
+    });
+  }));
+};
 
 // Mock audit logger to prevent real audit log entries during tests
 jest.mock("@/lib/audit-logger", () => {

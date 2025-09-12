@@ -16,6 +16,15 @@ interface RateLimitStore {
 
 const store: RateLimitStore = {};
 
+/**
+ * Reset the rate limit store (for testing)
+ */
+export function resetRateLimitStore(): void {
+  Object.keys(store).forEach((key) => {
+    delete store[key];
+  });
+}
+
 // Clean up expired entries every 5 minutes
 setInterval(
   () => {

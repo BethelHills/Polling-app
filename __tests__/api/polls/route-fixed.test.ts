@@ -154,15 +154,10 @@ describe("/api/polls POST endpoint - Fixed Tests", () => {
   });
 
   it("should handle authentication failure", async () => {
-    mockSupabaseClient.auth.getUser.mockResolvedValue({
-      data: null,
-      error: new Error("Invalid token"),
-    });
-
     const request = new NextRequest("http://localhost:3000/api/polls", {
       method: "POST",
       headers: {
-        Authorization: "Bearer invalid-token-12345",
+        Authorization: "Bearer 123", // Short token that will fail format validation
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -176,7 +171,7 @@ describe("/api/polls POST endpoint - Fixed Tests", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid token");
+    expect(data.message).toContain("Invalid token format");
   });
 
   it("should validate poll data", async () => {

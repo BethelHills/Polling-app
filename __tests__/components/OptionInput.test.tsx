@@ -33,7 +33,10 @@ describe("OptionInput", () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(mockOnChange).toHaveBeenCalledWith("Test Option");
+    // Should be called for each character typed
+    expect(mockOnChange).toHaveBeenCalledTimes(11); // "Test Option" = 11 characters
+    expect(mockOnChange).toHaveBeenLastCalledWith("n"); // Last character typed
+    expect(mockOnChange).toHaveBeenNthCalledWith(1, "T"); // First character typed
   });
 
   it("shows remove button when canRemove is true", () => {

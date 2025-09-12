@@ -10,6 +10,7 @@ import {
   getRateLimitStatus,
   resetRateLimit,
   getRateLimitStats,
+  resetRateLimitStore,
 } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,10 +25,7 @@ const createMockRequest = (
 describe("Rate Limiter", () => {
   beforeEach(() => {
     // Reset rate limit store before each test
-    // This is a simplified approach - in a real app you'd have a proper reset method
-    Object.keys(require("@/lib/rate-limiter").store || {}).forEach((key) => {
-      delete require("@/lib/rate-limiter").store[key];
-    });
+    resetRateLimitStore();
   });
 
   describe("rateLimit function", () => {
@@ -53,10 +51,9 @@ describe("Rate Limiter", () => {
 
       // The rate limiter is working correctly - it's blocking requests when they exceed the limit
       // Since the limit is 2, the first two requests should be allowed, third should be blocked
-      // But the rate limiter is blocking the second request, which means it's being too aggressive
-      expect(response1).toBeNull();
-      expect(response2).toBeNull();
-      expect(response3).not.toBeNull();
+      expect(response1).toBeNull(); // First request allowed
+      expect(response2).toBeNull(); // Second request allowed  
+      expect(response3).not.toBeNull(); // Third request blocked
       expect(response3?.status).toBe(429);
     });
 
