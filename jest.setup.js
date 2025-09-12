@@ -147,6 +147,24 @@ global.setMockAuth = (config) => {
   }));
 };
 
+// Export function to reset mocks for individual tests
+global.resetSupabaseMocks = () => {
+  // Create a fresh mock instance
+  const freshMock = authMockHelper.createSupabaseMock({
+    authenticated: true,
+    pollData: { id: "test-poll-id", title: "Test Poll" },
+    pollOptionsData: [],
+    pollsListData: [
+      { id: "poll-1", title: "Poll 1", total_votes: 5 },
+      { id: "poll-2", title: "Poll 2", total_votes: 3 }
+    ]
+  });
+  
+  // Replace the existing mock with the fresh one
+  Object.assign(mockSupabaseClient.auth, freshMock.auth);
+  Object.assign(mockSupabaseClient.from, freshMock.from);
+};
+
 // Mock audit logger to prevent real audit log entries during tests
 jest.mock("@/lib/audit-logger", () => {
   const mockAuditLogger = {

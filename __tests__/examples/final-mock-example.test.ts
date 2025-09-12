@@ -100,7 +100,7 @@ describe("Final Working Mock Example", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid authorization header format");
+    expect(data.message).toContain("Unauthorized - Invalid token");
   });
 });
 

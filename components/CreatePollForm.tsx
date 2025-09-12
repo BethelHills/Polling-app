@@ -44,7 +44,7 @@ export function CreatePollForm() {
       options: formState.options,
     });
 
-    setFormState((prev) => ({ ...prev, isValid: validation.isValid }));
+    setFormState((prev: FormState) => ({ ...prev, isValid: validation.isValid }));
 
     // Clear field errors when form becomes valid
     if (validation.isValid) {
@@ -54,7 +54,7 @@ export function CreatePollForm() {
 
   const addOption = () => {
     if (formState.options.length < 10) {
-      setFormState((prev) => ({
+      setFormState((prev: FormState) => ({
         ...prev,
         options: [...prev.options, ""],
       }));
@@ -63,7 +63,7 @@ export function CreatePollForm() {
 
   const removeOption = (index: number) => {
     if (formState.options.length > 2) {
-      setFormState((prev) => ({
+      setFormState((prev: FormState) => ({
         ...prev,
         options: prev.options.filter((_, i) => i !== index),
       }));
@@ -71,7 +71,7 @@ export function CreatePollForm() {
   };
 
   const updateOption = (index: number, value: string) => {
-    setFormState((prev) => {
+    setFormState((prev: FormState) => {
       const newOptions = [...prev.options];
       newOptions[index] = value;
       return { ...prev, options: newOptions };
@@ -79,27 +79,27 @@ export function CreatePollForm() {
 
     // Real-time validation for this option
     const error = validateField("option", value, formState.options);
-    setFieldErrors((prev) => ({
+    setFieldErrors((prev: Record<string, string>) => ({
       ...prev,
       [`option-${index}`]: error || "",
     }));
   };
 
   const updateTitle = (value: string) => {
-    setFormState((prev) => ({ ...prev, title: value }));
+    setFormState((prev: FormState) => ({ ...prev, title: value }));
 
     const error = validateField("title", value);
-    setFieldErrors((prev) => ({
+    setFieldErrors((prev: Record<string, string>) => ({
       ...prev,
       title: error || "",
     }));
   };
 
   const updateDescription = (value: string) => {
-    setFormState((prev) => ({ ...prev, description: value }));
+    setFormState((prev: FormState) => ({ ...prev, description: value }));
 
     const error = validateField("description", value);
-    setFieldErrors((prev) => ({
+    setFieldErrors((prev: Record<string, string>) => ({
       ...prev,
       description: error || "",
     }));
@@ -128,7 +128,7 @@ export function CreatePollForm() {
       return;
     }
 
-    setFormState((prev) => ({ ...prev, isSubmitting: true }));
+    setFormState((prev: FormState) => ({ ...prev, isSubmitting: true }));
     setMessage(null);
 
     try {
@@ -156,7 +156,7 @@ export function CreatePollForm() {
     } catch {
       setMessage({ type: "error", text: "An unexpected error occurred" });
     } finally {
-      setFormState((prev) => ({ ...prev, isSubmitting: false }));
+      setFormState((prev: FormState) => ({ ...prev, isSubmitting: false }));
     }
   };
 

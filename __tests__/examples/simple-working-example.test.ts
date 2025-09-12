@@ -108,7 +108,7 @@ describe("Simple Working Example - Your Mock Pattern", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid authorization header format");
+    expect(data.message).toContain("Unauthorized - Invalid token");
   });
 });
 

@@ -61,13 +61,16 @@ describe("Rate Limiter", () => {
       const request = createMockRequest();
       const config = { ...RateLimitConfigs.GENERAL, max: 1 };
 
-      // First request should be rate limited (since limit is 1 and we're testing)
+      // First request should be allowed, second should be rate limited
       const response1 = await rateLimit(config)(request);
-      expect(response1).not.toBeNull();
-      expect(response1?.status).toBe(429);
-      expect(response1?.headers.get("X-RateLimit-Limit")).toBe("1");
-      expect(response1?.headers.get("X-RateLimit-Remaining")).toBe("0");
-      expect(response1?.headers.get("Retry-After")).toBeTruthy();
+      expect(response1).toBeNull(); // First request allowed
+      
+      const response2 = await rateLimit(config)(request);
+      expect(response2).not.toBeNull(); // Second request blocked
+      expect(response2?.status).toBe(429);
+      expect(response2?.headers.get("X-RateLimit-Limit")).toBe("1");
+      expect(response2?.headers.get("X-RateLimit-Remaining")).toBe("0");
+      expect(response2?.headers.get("Retry-After")).toBeTruthy();
     });
 
     it("should use custom key generator", async () => {
@@ -121,9 +124,12 @@ describe("Rate Limiter", () => {
       });
       const request = createMockRequest();
 
-      // First request should be rate limited (since limit is 1)
+      // First request should be allowed, second should be rate limited
       const response1 = await wrappedHandler(request);
-      expect(response1.status).toBe(429);
+      expect(response1.status).toBe(200); // First request allowed
+      
+      const response2 = await wrappedHandler(request);
+      expect(response2.status).toBe(429); // Second request blocked
     });
 
     it("should add rate limit headers to successful responses", async () => {

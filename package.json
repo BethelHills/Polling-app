@@ -9,6 +9,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:vitest": "vitest",
+    "test:vitest:ui": "vitest --ui",
+    "test:vitest:run": "vitest run",
+    "test:vitest:coverage": "vitest run --coverage",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "env:validate": "npx tsx scripts/env-validate.ts",
@@ -50,6 +54,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/ui": "^3.2.4",
     "eslint": "9.34.0",
     "eslint-config-next": "15.5.2",
     "husky": "^9.1.7",
@@ -61,6 +66,7 @@
     "ts-jest": "^29.4.1",
     "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.8",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,168 +1,229 @@
-# 🗄️ Database Migration Guide
+# Supabase Mock Migration Guide
 
-## 🎯 **Unique Vote Constraint Migration**
+## Overview
 
-This guide helps you add the unique constraint to prevent duplicate votes in your existing database.
+This guide shows how to migrate from the current Supabase mocking approach to the new standardized helper functions that reduce duplication and improve maintainability.
 
-### **📋 What This Migration Does:**
+## Benefits of Migration
 
-- **Prevents Duplicate Votes**: Users can only vote once per poll
-- **Database Integrity**: Ensures data consistency
-- **Security Enhancement**: Prevents vote manipulation
+### ✅ **Reduced Code Duplication**
+- **Before**: 20-30 lines of mock setup per test
+- **After**: 1-2 lines using helper functions
 
-### **🔧 Migration Options:**
+### ✅ **Improved Readability**
+- **Before**: Complex mock setup obscures test intent
+- **After**: Clear, declarative test setup
 
-#### **Option 1: Safe Migration (Recommended)**
+### ✅ **Easier Maintenance**
+- **Before**: Mock changes require updates in multiple files
+- **After**: Changes centralized in helper functions
 
-```sql
--- Run this in your Supabase SQL editor
--- This checks for existing constraint and adds it safely
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint
-        WHERE conname = 'unique_user_poll_vote'
-    ) THEN
-        ALTER TABLE votes ADD CONSTRAINT unique_user_poll_vote UNIQUE (poll_id, user_id);
-        RAISE NOTICE 'Added unique constraint: unique_user_poll_vote';
-    ELSE
-        RAISE NOTICE 'Constraint unique_user_poll_vote already exists';
-    END IF;
-END $$;
-```
+### ✅ **Consistent Patterns**
+- **Before**: Different approaches across test files
+- **After**: Standardized patterns everywhere
 
-#### **Option 2: Clean Migration (If you have duplicates)**
+## Migration Steps
 
-```sql
--- First, remove any duplicate votes
-DELETE FROM votes
-WHERE id NOT IN (
-    SELECT MIN(id)
-    FROM votes
-    GROUP BY poll_id, user_id
-);
+### Step 1: Import Helper Functions
 
--- Then add the constraint
-ALTER TABLE votes ADD CONSTRAINT unique_user_poll_vote UNIQUE (poll_id, user_id);
-```
-
-#### **Option 3: Full Schema Update**
-
-```sql
--- Use the complete updated schema
--- This includes RLS policies and all constraints
--- (See database-schema-updated.sql)
-```
-
-### **🚀 How to Apply the Migration:**
-
-#### **1. Via Supabase Dashboard:**
-
-1. Go to your Supabase project dashboard
-2. Navigate to **SQL Editor**
-3. Copy and paste the migration SQL
-4. Click **Run** to execute
-
-#### **2. Via Supabase CLI:**
-
-```bash
-# If you have Supabase CLI installed
-supabase db reset
-# or
-supabase db push
-```
-
-#### **3. Via psql (Direct Database Access):**
-
-```bash
-psql -h your-db-host -U postgres -d postgres -f migrations/add-unique-vote-constraint.sql
-```
-
-### **✅ Verification Steps:**
-
-#### **1. Check Constraint Exists:**
-
-```sql
-SELECT
-    conname as constraint_name,
-    contype as constraint_type,
-    pg_get_constraintdef(oid) as constraint_definition
-FROM pg_constraint
-WHERE conname = 'unique_user_poll_vote';
-```
-
-#### **2. Test Duplicate Prevention:**
-
-```sql
--- This should fail after migration
-INSERT INTO votes (poll_id, user_id, option_id)
-VALUES ('poll-uuid', 'user-uuid', 'option-uuid');
-
--- Try to insert the same vote again - should fail
-INSERT INTO votes (poll_id, user_id, option_id)
-VALUES ('poll-uuid', 'user-uuid', 'option-uuid');
-```
-
-### **🛡️ Security Benefits:**
-
-1. **Prevents Vote Manipulation**: Users can't vote multiple times
-2. **Data Integrity**: Ensures consistent vote counts
-3. **Audit Trail**: Clear voting history per user
-4. **Performance**: Indexed constraint improves query performance
-
-### **⚠️ Important Notes:**
-
-- **Backup First**: Always backup your database before migrations
-- **Test Environment**: Test migrations in a development environment first
-- **Existing Data**: Check for duplicate votes before applying constraint
-- **Application Code**: Update your application to handle constraint violations gracefully
-
-### **🔧 Application Code Updates:**
-
-Your `voteHandler` function should handle the unique constraint violation:
-
+**Before:**
 ```typescript
-// In your voteHandler function
-try {
-  const { data, error } = await supabase.from("votes").insert([voteData]);
-
-  if (error) {
-    // Handle unique constraint violation
-    if (error.code === "23505") {
-      // Unique violation
-      return { error: "User has already voted on this poll" };
-    }
-    return { error: "Failed to submit vote" };
-  }
-
-  return { success: true, data };
-} catch (error) {
-  return { error: "An unexpected error occurred" };
-}
+import { 
+  createAuthMocks, 
+  createTestRequest, 
+  createUnauthRequest, 
+  createInvalidTokenRequest 
+} from "../../utils/auth-mock-helper";
 ```
 
-### **📊 Expected Results:**
+**After:**
+```typescript
+import {
+  resetAndGetMockClient,
+  setupSuccessfulPollCreationScenario,
+  setupFailedPollCreationScenario,
+  createAuthenticatedRequest,
+  createUnauthenticatedRequest,
+  createInvalidTokenRequest,
+} from "../../utils/supabase-test-helpers";
+```
 
-After successful migration:
+### Step 2: Update beforeEach Setup
 
-- ✅ Users can only vote once per poll
-- ✅ Duplicate vote attempts return proper error messages
-- ✅ Vote counts remain accurate
-- ✅ Database performance improves with indexed constraint
+**Before:**
+```typescript
+beforeEach(() => {
+  jest.clearAllMocks();
 
-### **🆘 Troubleshooting:**
+  // Use standardized auth mock helper
+  mockSupabaseClient = createAuthMocks({
+    authenticated: true,
+    pollData: { id: "test-poll-id", title: "Test Poll" },
+    pollOptionsData: [],
+    pollsListData: []
+  });
+});
+```
 
-#### **If Migration Fails:**
+**After:**
+```typescript
+beforeEach(() => {
+  // NEW PATTERN: Use standardized reset and get client
+  mockSupabaseClient = resetAndGetMockClient();
+});
+```
 
-1. **Check for Duplicates**: Run duplicate detection query
-2. **Clean Data**: Remove duplicates before applying constraint
-3. **Check Permissions**: Ensure you have ALTER TABLE permissions
-4. **Verify Table Structure**: Ensure votes table exists with correct columns
+### Step 3: Replace Manual Mock Setup
 
-#### **Common Error Messages:**
+**Before:**
+```typescript
+it("should create poll successfully", async () => {
+  // Manual mock setup
+  mockSupabaseClient.auth.getUser.mockResolvedValue({
+    data: { user: { id: "user-123", email: "test@example.com" } },
+    error: null
+  });
 
-- `relation "votes" does not exist`: Create the votes table first
-- `duplicate key value violates unique constraint`: Remove duplicates first
-- `permission denied`: Check your database user permissions
+  mockSupabaseClient.from.mockImplementation((table: string) => {
+    if (table === "polls") {
+      return {
+        insert: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { id: "poll-123", title: "Test Poll" },
+              error: null
+            })
+          })
+        })
+      };
+    }
+    // More complex setup...
+  });
 
-Your database will be more secure and consistent after applying this migration! 🎉
+  // Test code...
+});
+```
+
+**After:**
+```typescript
+it("should create poll successfully", async () => {
+  // NEW PATTERN: Use scenario helper
+  setupSuccessfulPollCreationScenario(mockSupabaseClient);
+
+  // Test code...
+});
+```
+
+### Step 4: Replace Request Creation
+
+**Before:**
+```typescript
+const request = createTestRequest({
+  body: {
+    title: "Test Poll",
+    options: ["Option 1", "Option 2"]
+  }
+});
+```
+
+**After:**
+```typescript
+const request = createAuthenticatedRequest({
+  body: {
+    title: "Test Poll",
+    options: ["Option 1", "Option 2"]
+  }
+});
+```
+
+## Common Migration Patterns
+
+### Authentication Setup
+
+| Scenario | Old Pattern | New Pattern |
+|----------|-------------|-------------|
+| Successful Auth | Manual `auth.getUser` mock | `setupSuccessfulAuth(mockSupabaseClient)` |
+| Failed Auth | Manual `auth.getUser` mock | `setupFailedAuth(mockSupabaseClient)` |
+| Custom User | Manual user object setup | `setupSuccessfulAuth(mockSupabaseClient, customUser)` |
+
+### Database Operations
+
+| Scenario | Old Pattern | New Pattern |
+|----------|-------------|-------------|
+| Successful Poll Creation | Complex `from` mock setup | `setupSuccessfulPollCreationScenario(mockSupabaseClient)` |
+| Database Error | Manual error mock setup | `setupPollCreationWithDatabaseError(mockSupabaseClient)` |
+| Custom Data | Manual data setup | `setupSuccessfulPollCreationScenario(mockSupabaseClient, customData)` |
+
+### Request Creation
+
+| Scenario | Old Pattern | New Pattern |
+|----------|-------------|-------------|
+| Authenticated Request | `createTestRequest()` | `createAuthenticatedRequest()` |
+| Unauthenticated Request | `createUnauthRequest()` | `createUnauthenticatedRequest()` |
+| Invalid Token Request | `createInvalidTokenRequest()` | `createInvalidTokenRequest()` |
+
+## Available Helper Functions
+
+### Authentication Helpers
+- `setupSuccessfulAuth(client, user?)` - Setup successful authentication
+- `setupFailedAuth(client, error?)` - Setup failed authentication
+- `setupAuth(client, config)` - Setup auth with custom config
+
+### Database Scenario Helpers
+- `setupSuccessfulPollCreationScenario(client, pollData?)` - Complete successful poll creation
+- `setupFailedPollCreationScenario(client, error?)` - Complete failed poll creation
+- `setupPollCreationWithDatabaseError(client, error?)` - Poll creation with DB error
+- `setupSuccessfulPollsFetchScenario(client, pollsData?)` - Complete successful polls fetch
+
+### Request Helpers
+- `createAuthenticatedRequest(options?)` - Create authenticated request
+- `createUnauthenticatedRequest(options?)` - Create unauthenticated request
+- `createInvalidTokenRequest(options?)` - Create request with invalid token
+
+### Utility Helpers
+- `resetAndGetMockClient()` - Reset mocks and get fresh client
+- `setupDatabaseOperation(client, config)` - Setup generic database operation
+- `setupMultipleDatabaseOperations(client, configs)` - Setup multiple operations
+
+## Migration Checklist
+
+### For Each Test File:
+
+- [ ] **Import new helper functions**
+- [ ] **Update beforeEach to use `resetAndGetMockClient()`**
+- [ ] **Replace manual auth setup with helper functions**
+- [ ] **Replace manual database setup with scenario helpers**
+- [ ] **Replace request creation with helper functions**
+- [ ] **Remove old auth-mock-helper imports**
+- [ ] **Test the migrated file**
+- [ ] **Update test descriptions if needed**
+
+### For the Project:
+
+- [ ] **Migrate 2-3 test files as proof of concept**
+- [ ] **Verify all tests still pass**
+- [ ] **Gradually migrate remaining test files**
+- [ ] **Remove old auth-mock-helper.ts when no longer used**
+- [ ] **Update documentation**
+
+## Example Migration
+
+See `__tests__/api/polls/route-fixed-migrated.test.ts` for a complete example of a migrated test file.
+
+## Rollback Plan
+
+If you need to rollback:
+1. Keep the old `auth-mock-helper.ts` file
+2. Revert test files to use old imports
+3. Remove new helper functions
+4. All tests should continue working
+
+## Support
+
+If you encounter issues during migration:
+1. Check the template file for correct usage patterns
+2. Ensure all imports are correct
+3. Verify helper function parameters
+4. Test one file at a time
+
+The new system is designed to be backward compatible, so you can migrate gradually without breaking existing tests.

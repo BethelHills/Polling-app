@@ -9,10 +9,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { castVote, getPollResults, setAuthToken, isAuthenticated } from '@/lib/api-client';
+import { PollWithResults } from '@/lib/types';
 
 // Example 1: Voting Component
 export function VotingComponent({ pollId }: { pollId: string }) {
-  const [poll, setPoll] = useState<any>(null);
+  const [poll, setPoll] = useState<PollWithResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,13 +60,21 @@ export function VotingComponent({ pollId }: { pollId: string }) {
       if (result.success && result.data) {
         setSuccess('Vote submitted successfully!');
         // Update poll with new results
-        setPoll((prev: any) => ({
-          ...prev,
-          options: result.data!.poll.results.map(option => ({
-            ...option,
-            percentage: Math.round((option.votes / result.data!.poll.results.reduce((sum, opt) => sum + opt.votes, 0)) * 100)
-          }))
-        }));
+        setPoll((prev: PollWithResults | null) => {
+          if (!prev) return prev;
+          const totalVotes = result.data!.poll.results.reduce((sum, opt) => sum + opt.votes, 0);
+          return {
+            ...prev,
+            options: result.data!.poll.results.map(option => ({
+              id: option.id,
+              poll_id: prev.id,
+              text: option.text,
+              votes: option.votes,
+              order: option.order_index || 0,
+              percentage: Math.round((option.votes / totalVotes) * 100)
+            }))
+          };
+        });
       } else {
         setError(result.message);
       }
@@ -150,7 +159,7 @@ export function VotingComponent({ pollId }: { pollId: string }) {
 
 // Example 2: Poll Results Display Component
 export function PollResultsComponent({ pollId }: { pollId: string }) {
-  const [poll, setPoll] = useState<any>(null);
+  const [poll, setPoll] = useState<PollWithResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

@@ -82,54 +82,45 @@ describe("Enhanced Mock Example", () => {
   let mockSupabaseClient: any;
 
   beforeEach(() => {
-    // Create a more comprehensive mock
-    mockSupabaseClient = {
-      auth: {
-        getUser: jest.fn(),
-      },
-      from: jest.fn(() => ({
-        insert: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn(),
-          })),
-        })),
-        select: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            order: jest.fn(),
-          })),
-        })),
-      })),
-    };
+    jest.clearAllMocks();
 
-    // Mock the module with our enhanced client
-    jest.doMock("@/lib/supabaseServerClient", () => ({
-      supabaseServerClient: mockSupabaseClient,
-    }));
-  });
+    // Get the mocked client
+    const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+    mockSupabaseClient = supabaseServerClient;
 
-  it("should handle successful poll creation", async () => {
-    // Setup successful authentication
+    // Setup default successful responses
     mockSupabaseClient.auth.getUser.mockResolvedValue({
       data: { user: { id: "user1" } },
       error: null,
     });
 
-    // Setup successful poll creation
-    mockSupabaseClient
-      .from()
-      .insert()
-      .select()
-      .single.mockResolvedValue({
-        data: { id: "poll-123", title: "Test Poll" },
-        error: null,
-      });
-
-    // Setup successful options creation
-    mockSupabaseClient.from().insert.mockResolvedValue({
-      data: [],
-      error: null,
+    // Setup database mocks
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: { id: "poll-123", title: "Test Poll" },
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockResolvedValue({
+            data: [],
+            error: null,
+          }),
+        };
+      }
+      return {};
     });
+  });
 
+  it("should handle successful poll creation", async () => {
     const request = new NextRequest("http://localhost:3000/api/polls", {
       method: "POST",
       headers: {
@@ -152,8 +143,8 @@ describe("Enhanced Mock Example", () => {
   it("should handle authentication failure", async () => {
     // Setup authentication failure
     mockSupabaseClient.auth.getUser.mockResolvedValue({
-      data: null,
-      error: new Error("Invalid token"),
+      data: { user: null },
+      error: { message: "Invalid token" },
     });
 
     const request = new NextRequest("http://localhost:3000/api/polls", {
@@ -172,25 +163,34 @@ describe("Enhanced Mock Example", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid authorization header format");
+    expect(data.message).toContain("Unauthorized - Invalid token");
   });
 
   it("should handle database errors", async () => {
-    // Setup successful authentication
-    mockSupabaseClient.auth.getUser.mockResolvedValue({
-      data: { user: { id: "user1" } },
-      error: null,
+    // Override the mock to return error for polls table
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: null,
+                error: { message: "Database connection failed" },
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockResolvedValue({
+            data: [],
+            error: null,
+          }),
+        };
+      }
+      return {};
     });
-
-    // Setup database error
-    mockSupabaseClient
-      .from()
-      .insert()
-      .select()
-      .single.mockResolvedValue({
-        data: null,
-        error: new Error("Database connection failed"),
-      });
 
     const request = new NextRequest("http://localhost:3000/api/polls", {
       method: "POST",
@@ -238,6 +238,47 @@ export const createMockRequest = (options: {
 
 // Example usage of the utility
 describe("Using Mock Request Utility", () => {
+  let mockSupabaseClient: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // Get the mocked client
+    const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+    mockSupabaseClient = supabaseServerClient;
+
+    // Setup default successful responses
+    mockSupabaseClient.auth.getUser.mockResolvedValue({
+      data: { user: { id: "user1" } },
+      error: null,
+    });
+
+    // Setup database mocks
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: { id: "poll-123", title: "Test Poll" },
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockResolvedValue({
+            data: [],
+            error: null,
+          }),
+        };
+      }
+      return {};
+    });
+  });
+
   it("should work with mock request utility", async () => {
     const request = createMockRequest({
       headers: {

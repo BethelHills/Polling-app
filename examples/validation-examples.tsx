@@ -42,7 +42,7 @@ export function BasicValidationExample() {
         placeholder="Poll title"
         value={formData.title}
         onChange={(e) =>
-          setFormData((prev) => ({ ...prev, title: e.target.value }))
+          setFormData((prev: Partial<CreatePollInput>) => ({ ...prev, title: e.target.value }))
         }
       />
       {/* ... other form fields */}
@@ -202,7 +202,7 @@ export function RealTimeValidationExample() {
 
       const result = fieldSchema.safeParse(value);
 
-      setFieldErrors((prev) => ({
+      setFieldErrors((prev: Record<string, string>) => ({
         ...prev,
         [field]: result.success ? "" : result.error.issues[0]?.message || "",
       }));
@@ -212,7 +212,7 @@ export function RealTimeValidationExample() {
   };
 
   const handleFieldChange = (field: keyof CreatePollInput, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev: Partial<CreatePollInput>) => ({ ...prev, [field]: value }));
     validateField(field, value);
   };
 

@@ -8,13 +8,7 @@ jest.mock("@/lib/supabaseServerClient", () => ({
     auth: {
       getUser: jest.fn(),
     },
-    from: jest.fn(() => ({
-      insert: jest.fn(() => ({
-        select: jest.fn(() => ({
-          single: jest.fn(),
-        })),
-      })),
-    })),
+    from: jest.fn(),
   },
 }));
 
@@ -34,28 +28,37 @@ describe("Simple Mock Example - Your Pattern", () => {
     // Get the mocked client
     const { supabaseServerClient } = require("@/lib/supabaseServerClient");
     mockSupabaseClient = supabaseServerClient;
+
+    // Setup database mocks
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: { id: "poll-123", title: "Test Poll" },
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockResolvedValue({
+            data: [],
+            error: null,
+          }),
+        };
+      }
+      return {};
+    });
   });
 
   it("should authenticate user successfully", async () => {
     // Setup successful authentication
     mockSupabaseClient.auth.getUser.mockResolvedValue({
       data: { user: { id: "user1" } },
-      error: null,
-    });
-
-    // Setup successful poll creation
-    mockSupabaseClient
-      .from()
-      .insert()
-      .select()
-      .single.mockResolvedValue({
-        data: { id: "poll-123", title: "Test Poll" },
-        error: null,
-      });
-
-    // Setup successful options creation
-    mockSupabaseClient.from().insert.mockResolvedValue({
-      data: [],
       error: null,
     });
 
@@ -101,7 +104,7 @@ describe("Simple Mock Example - Your Pattern", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid authorization header format");
+    expect(data.message).toContain("Unauthorized - Invalid token");
   });
 
   it("should handle missing authorization header", async () => {
@@ -179,26 +182,37 @@ describe("Using Test Request Utility", () => {
     jest.clearAllMocks();
     const { supabaseServerClient } = require("@/lib/supabaseServerClient");
     mockSupabaseClient = supabaseServerClient;
+
+    // Setup database mocks
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: { id: "poll-123", title: "Test Poll" },
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockResolvedValue({
+            data: [],
+            error: null,
+          }),
+        };
+      }
+      return {};
+    });
   });
 
   it("should work with utility function", async () => {
-    // Setup mocks
+    // Setup authentication
     mockSupabaseClient.auth.getUser.mockResolvedValue({
       data: { user: { id: "user1" } },
-      error: null,
-    });
-
-    mockSupabaseClient
-      .from()
-      .insert()
-      .select()
-      .single.mockResolvedValue({
-        data: { id: "poll-123", title: "Test Poll" },
-        error: null,
-      });
-
-    mockSupabaseClient.from().insert.mockResolvedValue({
-      data: [],
       error: null,
     });
 

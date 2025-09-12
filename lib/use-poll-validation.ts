@@ -127,7 +127,7 @@ export function usePollValidation(): UsePollValidationReturn {
   );
 
   const clearErrors = useCallback(() => {
-    setState((prev) => ({
+    setState((prev: ValidationState) => ({
       ...prev,
       errors: {},
       isValid: false,

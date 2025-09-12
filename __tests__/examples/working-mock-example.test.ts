@@ -97,7 +97,7 @@ describe("Working Mock Example - Your Pattern", () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain("Invalid authorization header format");
+    expect(data.message).toContain("Unauthorized - Invalid token");
   });
 
   it("should handle missing authorization header", async () => {
@@ -202,16 +202,35 @@ export const createSupabaseMock = () => {
 
 // Example using the reusable mock
 describe("Reusable Mock Example", () => {
-  let mock: ReturnType<typeof createSupabaseMock>;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mock = createSupabaseMock();
   });
 
   it("should work with reusable mock", async () => {
-    mock.setupSuccessfulAuth();
-    mock.setupSuccessfulPollCreation();
+    // Setup successful authentication
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "user1" } },
+      error: null,
+    });
+
+    // Setup successful poll creation
+    const mockInsert = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: { id: "poll-123", title: "Test Poll" },
+          error: null,
+        }),
+      }),
+    });
+
+    const mockInsertOptions = jest.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    });
+
+    mockFrom
+      .mockReturnValueOnce({ insert: mockInsert })
+      .mockReturnValueOnce({ insert: mockInsertOptions });
 
     const request = new NextRequest("http://localhost:3000/api/polls", {
       method: "POST",

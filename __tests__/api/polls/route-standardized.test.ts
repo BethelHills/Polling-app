@@ -8,24 +8,83 @@ import {
   authMockHelper 
 } from "../../utils/auth-mock-helper";
 
+// Mock the supabaseServerClient module
+jest.mock("@/lib/supabaseServerClient", () => ({
+  supabaseServerClient: {
+    auth: {
+      getUser: jest.fn(),
+    },
+    from: jest.fn(),
+  },
+}));
+
 describe("/api/polls - Standardized Authentication Tests", () => {
   let mockSupabaseClient: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Use the standardized auth mock helper
-    mockSupabaseClient = createAuthMocks({
-      authenticated: true,
-      pollData: { id: "test-poll-id", title: "Test Poll" },
-      pollOptionsData: [
-        { id: "option-1", text: "Option 1", votes: 0 },
-        { id: "option-2", text: "Option 2", votes: 0 }
-      ],
-      pollsListData: [
-        { id: "poll-1", title: "Poll 1", total_votes: 5 },
-        { id: "poll-2", title: "Poll 2", total_votes: 3 }
-      ]
+    // Get the mocked module
+    const { supabaseServerClient } = require("@/lib/supabaseServerClient");
+    mockSupabaseClient = supabaseServerClient;
+    
+    // Set up the mock with default successful behavior
+    mockSupabaseClient.auth.getUser.mockResolvedValue({
+      data: { user: { id: "test-user-id", email: "test@example.com" } },
+      error: null
+    });
+    
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: { id: "test-poll-id", title: "Test Poll" },
+                error: null
+              })
+            })
+          }),
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              order: jest.fn().mockResolvedValue({
+                data: [
+                  { 
+                    id: "poll-1", 
+                    title: "Poll 1", 
+                    options: [
+                      { id: "opt-1", votes: 3 },
+                      { id: "opt-2", votes: 2 }
+                    ]
+                  },
+                  { 
+                    id: "poll-2", 
+                    title: "Poll 2", 
+                    options: [
+                      { id: "opt-3", votes: 1 },
+                      { id: "opt-4", votes: 2 }
+                    ]
+                  }
+                ],
+                error: null
+              })
+            })
+          })
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              then: jest.fn().mockResolvedValue({
+                data: [],
+                error: null
+              })
+            })
+          })
+        };
+      }
+      return {};
     });
   });
 
@@ -71,12 +130,12 @@ describe("/api/polls - Standardized Authentication Tests", () => {
 
     it("should reject requests with invalid token", async () => {
       // Override the mock to return authentication failure
-      mockSupabaseClient.auth.getUser.mockResolvedValueOnce({
+      mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: null },
         error: { message: "Invalid token" }
       });
 
-      const request = createTestRequest({ token: "invalid-token" });
+      const request = createTestRequest({ token: "invalid-token-123" });
 
       const response = await POST(request);
       const data = await response.json();
@@ -104,16 +163,22 @@ describe("/api/polls - Standardized Authentication Tests", () => {
     });
 
     it("should handle database errors during poll creation", async () => {
-      // Override the mock to return database error
-      mockSupabaseClient.from.mockReturnValueOnce({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: null,
-              error: { message: "Database error" }
+      // Override the from mock to return database error
+      const originalFrom = mockSupabaseClient.from;
+      mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === "polls") {
+          return {
+            insert: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
+                  data: null,
+                  error: { message: "Database error" }
+                })
+              })
             })
-          })
-        })
+          };
+        }
+        return originalFrom(table);
       });
 
       const request = createTestRequest();
@@ -141,16 +206,22 @@ describe("/api/polls - Standardized Authentication Tests", () => {
     });
 
     it("should handle database errors when fetching polls", async () => {
-      // Override the mock to return database error
-      mockSupabaseClient.from.mockReturnValueOnce({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            order: jest.fn().mockResolvedValue({
-              data: null,
-              error: { message: "Database error" }
+      // Override the from mock to return database error
+      const originalFrom = mockSupabaseClient.from;
+      mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === "polls") {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                order: jest.fn().mockResolvedValue({
+                  data: null,
+                  error: { message: "Database error" }
+                })
+              })
             })
-          })
-        })
+          };
+        }
+        return originalFrom(table);
       });
 
       const request = createTestRequest({ method: "GET" });

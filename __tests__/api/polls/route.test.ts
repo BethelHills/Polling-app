@@ -128,6 +128,68 @@ describe("/api/polls POST endpoint", () => {
     // Get the mocked client
     const { supabaseServerClient } = require("@/lib/supabaseServerClient");
     mockSupabaseClient = supabaseServerClient;
+    
+    // Set up default successful behavior
+    mockSupabaseClient.auth.getUser.mockImplementation((token: string) => {
+      if (token && token.length >= 10) {
+        return Promise.resolve({
+          data: { user: { id: "test-user-id", email: "test@example.com" } },
+          error: null
+        });
+      }
+      return Promise.resolve({
+        data: { user: null },
+        error: { message: "Invalid token" }
+      });
+    });
+    
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
+                data: { id: "test-poll-id", title: "Test Poll" },
+                error: null
+              })
+            })
+          }),
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              order: jest.fn().mockResolvedValue({
+                data: [
+                  { 
+                    id: "poll-1", 
+                    title: "Poll 1", 
+                    is_active: true,
+                    created_at: "2024-01-01T00:00:00Z",
+                    total_votes: 8,
+                    options: [
+                      { id: "option-1", votes: 5 },
+                      { id: "option-2", votes: 3 }
+                    ]
+                  }
+                ],
+                error: null
+              })
+            })
+          })
+        };
+      }
+      if (table === "poll_options") {
+        return {
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              then: jest.fn().mockResolvedValue({
+                data: [],
+                error: null
+              })
+            })
+          })
+        };
+      }
+      return {};
+    });
   });
 
   describe("Unit Tests", () => {
@@ -241,7 +303,7 @@ describe("/api/polls POST endpoint", () => {
 
     it("should handle database errors during options creation", async () => {
       // Override the mock to return error for options
-      mockSupabaseClient.from.mockImplementationOnce((table: string) => {
+      mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === "polls") {
           return {
             insert: jest.fn().mockReturnValue({
@@ -256,13 +318,9 @@ describe("/api/polls POST endpoint", () => {
         }
         if (table === "poll_options") {
           return {
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                then: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: { message: "Options error" }
-                })
-              })
+            insert: jest.fn().mockResolvedValue({
+              data: null,
+              error: { message: "Options error" }
             })
           };
         }
@@ -324,6 +382,35 @@ describe("/api/polls POST endpoint", () => {
 
   describe("Integration Test", () => {
     it("should handle complete poll creation flow with real validation", async () => {
+      // Override the mock to return the correct title
+      mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === "polls") {
+          return {
+            insert: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
+                  data: { id: "test-poll-id", title: "Integration Test Poll" },
+                  error: null
+                })
+              })
+            })
+          };
+        }
+        if (table === "poll_options") {
+          return {
+            insert: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                then: jest.fn().mockResolvedValue({
+                  data: [],
+                  error: null
+                })
+              })
+            })
+          };
+        }
+        return {};
+      });
+
       const headers = new Headers();
       headers.set("authorization", "Bearer valid-token-12345");
       headers.set("content-type", "application/json");
@@ -363,6 +450,46 @@ describe("/api/polls GET endpoint", () => {
   });
 
   it("should successfully fetch all polls", async () => {
+    // Ensure the mock is set up correctly for GET
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              order: jest.fn().mockResolvedValue({
+                data: [
+                  { 
+                    id: "poll-1", 
+                    title: "Poll 1", 
+                    is_active: true,
+                    created_at: "2024-01-01T00:00:00Z",
+                    total_votes: 8,
+                    options: [
+                      { id: "option-1", votes: 5 },
+                      { id: "option-2", votes: 3 }
+                    ]
+                  },
+                  { 
+                    id: "poll-2", 
+                    title: "Poll 2", 
+                    is_active: true,
+                    created_at: "2024-01-02T00:00:00Z",
+                    total_votes: 5,
+                    options: [
+                      { id: "option-3", votes: 3 },
+                      { id: "option-4", votes: 2 }
+                    ]
+                  }
+                ],
+                error: null
+              })
+            })
+          })
+        };
+      }
+      return {};
+    });
+
     const response = await GET();
     const responseData = await response.json();
 

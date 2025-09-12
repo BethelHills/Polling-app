@@ -141,7 +141,7 @@ describe("/api/polls POST endpoint", () => {
       const request = new NextRequest("http://localhost:3000/api/polls", {
         method: "POST",
         headers: {
-          Authorization: "Bearer invalid-token",
+          Authorization: "Bearer short",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -155,7 +155,7 @@ describe("/api/polls POST endpoint", () => {
 
       expect(response.status).toBe(401);
       expect(data.success).toBe(false);
-      expect(data.message).toBe("Unauthorized - Invalid token");
+      expect(data.message).toBe("Invalid token format");
     });
 
     it("should accept requests with valid token", async () => {
@@ -347,7 +347,7 @@ describe("/api/polls POST endpoint", () => {
 
     it("should handle database errors during options creation", async () => {
       // Override the mock to return error for options
-      mockServerClient.from.mockImplementationOnce((table: string) => {
+      mockServerClient.from.mockImplementation((table: string) => {
         if (table === "polls") {
           return {
             insert: jest.fn().mockReturnValue({
@@ -362,13 +362,9 @@ describe("/api/polls POST endpoint", () => {
         }
         if (table === "poll_options") {
           return {
-            insert: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                then: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: { message: "Options error" }
-                })
-              })
+            insert: jest.fn().mockResolvedValue({
+              data: null,
+              error: { message: "Options error" }
             })
           };
         }
@@ -399,6 +395,34 @@ describe("/api/polls POST endpoint", () => {
   describe("Audit Logging", () => {
     it("should log poll creation for audit trail", async () => {
       const { auditLog } = require("@/lib/audit-logger");
+      
+      // Clear any previous calls
+      auditLog.pollCreated.mockClear();
+      
+      // Ensure the mock is properly set up
+      mockServerClient.from.mockImplementation((table: string) => {
+        if (table === "polls") {
+          return {
+            insert: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
+                  data: { id: "test-poll-id", title: "Test Poll" },
+                  error: null
+                })
+              })
+            })
+          };
+        }
+        if (table === "poll_options") {
+          return {
+            insert: jest.fn().mockResolvedValue({
+              data: [],
+              error: null
+            })
+          };
+        }
+        return {};
+      });
       
       const request = new NextRequest("http://localhost:3000/api/polls", {
         method: "POST",
@@ -433,6 +457,34 @@ describe("/api/polls GET endpoint", () => {
     // Get the mocked client
     const { supabaseServerClient } = require("@/lib/supabaseServerClient");
     mockServerClient = supabaseServerClient;
+    
+    // Set up the mock with default successful behavior
+    mockServerClient.from.mockImplementation((table: string) => {
+      if (table === "polls") {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              order: jest.fn().mockResolvedValue({
+                data: [
+                  { 
+                    id: "poll-1", 
+                    title: "Poll 1", 
+                    is_active: true,
+                    created_at: "2024-01-01T00:00:00Z",
+                    options: [
+                      { id: "option-1", votes: 3 },
+                      { id: "option-2", votes: 2 }
+                    ]
+                  }
+                ],
+                error: null
+              })
+            })
+          })
+        };
+      }
+      return {};
+    });
   });
 
   it("should fetch polls successfully", async () => {
