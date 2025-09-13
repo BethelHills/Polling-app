@@ -110,9 +110,9 @@ export function CreatePollForm() {
 
     // Final validation before submission
     const validation = validatePollForm({
-      title: formState.title,
-      description: formState.description,
-      options: formState.options,
+      title: formState.title.trim(),
+      description: formState.description.trim(),
+      options: formState.options.filter(opt => opt.trim() !== ''),
     });
 
     if (!validation.isValid) {

@@ -268,3 +268,135 @@ export function isAuthenticated(): boolean {
 
 // Export types for external use
 export type { ApiResponse, VoteResponse, PollResultsResponse };
+
+/**
+ * 🔄 Refresh poll results (useful for real-time updates)
+ * 
+ * @param pollId - The UUID of the poll to refresh
+ * @returns Promise with updated poll results
+ * 
+ * @example
+ * ```typescript
+ * const refreshedResults = await refreshPollResults('poll-123');
+ * if (refreshedResults.success) {
+ *   console.log('Updated results:', refreshedResults.data.poll);
+ * }
+ * ```
+ */
+export async function refreshPollResults(
+  pollId: string
+): Promise<ApiResponse<PollResultsResponse>> {
+  return getPollResults(pollId);
+}
+
+/**
+ * 📊 Get poll statistics (total votes, participation rate, etc.)
+ * 
+ * @param pollId - The UUID of the poll to get statistics for
+ * @returns Promise with poll statistics
+ * 
+ * @example
+ * ```typescript
+ * const stats = await getPollStatistics('poll-123');
+ * if (stats.success) {
+ *   console.log('Total votes:', stats.data.totalVotes);
+ *   console.log('Most popular option:', stats.data.mostPopularOption);
+ * }
+ * ```
+ */
+export async function getPollStatistics(
+  pollId: string
+): Promise<ApiResponse<{
+  totalVotes: number;
+  mostPopularOption: {
+    id: string;
+    text: string;
+    votes: number;
+    percentage: number;
+  } | null;
+  participationRate: number;
+  optionsCount: number;
+}>> {
+  const result = await getPollResults(pollId);
+  
+  if (!result.success || !result.data) {
+    return {
+      success: false,
+      message: result.message,
+    };
+  }
+
+  const { poll } = result.data;
+  const mostPopularOption = poll.options.length > 0 
+    ? poll.options.reduce((max, option) => 
+        option.votes > max.votes ? option : max
+      )
+    : null;
+
+  return {
+    success: true,
+    message: 'Statistics retrieved successfully',
+    data: {
+      totalVotes: poll.total_votes,
+      mostPopularOption: mostPopularOption ? {
+        id: mostPopularOption.id,
+        text: mostPopularOption.text,
+        votes: mostPopularOption.votes,
+        percentage: mostPopularOption.percentage,
+      } : null,
+      participationRate: poll.total_votes > 0 ? 100 : 0, // Simplified for now
+      optionsCount: poll.options.length,
+    },
+  };
+}
+
+/**
+ * 🎨 Format poll results for display
+ * 
+ * @param poll - The poll with results
+ * @returns Formatted poll data for UI display
+ * 
+ * @example
+ * ```typescript
+ * const formatted = formatPollForDisplay(poll);
+ * console.log('Winner:', formatted.winner);
+ * console.log('Options by popularity:', formatted.optionsByPopularity);
+ * ```
+ */
+export function formatPollForDisplay(poll: PollResultsResponse['poll']) {
+  const optionsByPopularity = [...poll.options].sort((a, b) => b.votes - a.votes);
+  const winner = optionsByPopularity[0];
+  const isTie = optionsByPopularity.length > 1 && 
+                optionsByPopularity[0].votes === optionsByPopularity[1].votes;
+  
+  return {
+    ...poll,
+    winner: winner || null,
+    isTie,
+    optionsByPopularity,
+    participationRate: poll.total_votes > 0 ? 100 : 0, // Simplified
+    hasResults: poll.total_votes > 0,
+  };
+}
+
+/**
+ * 🔍 Validate poll ID format
+ * 
+ * @param pollId - The poll ID to validate
+ * @returns True if valid UUID format
+ */
+export function isValidPollId(pollId: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(pollId);
+}
+
+/**
+ * 🔍 Validate option ID format
+ * 
+ * @param optionId - The option ID to validate
+ * @returns True if valid UUID format
+ */
+export function isValidOptionId(optionId: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(optionId);
+}
